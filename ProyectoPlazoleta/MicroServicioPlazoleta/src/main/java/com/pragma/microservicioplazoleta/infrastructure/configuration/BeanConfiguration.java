@@ -1,9 +1,13 @@
 package com.pragma.microservicioplazoleta.infrastructure.configuration;
 
 
+import com.pragma.microservicioplazoleta.domain.api.IPlatoServicio;
 import com.pragma.microservicioplazoleta.domain.api.IRestauranteServicio;
+import com.pragma.microservicioplazoleta.domain.spi.IPlatoRepositorio;
+import com.pragma.microservicioplazoleta.domain.spi.IRestaurantePlatoRepositorio;
 import com.pragma.microservicioplazoleta.domain.spi.IRestauranteRepositorio;
 import com.pragma.microservicioplazoleta.domain.spi.IUsuarioClient;
+import com.pragma.microservicioplazoleta.domain.usercase.PlatoUseCase;
 import com.pragma.microservicioplazoleta.domain.usercase.RestauranteUseCase;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +18,13 @@ public class BeanConfiguration {
     public IRestauranteServicio restauranteServicio(IRestauranteRepositorio iRestauranteRepositorio,
                                                     IUsuarioClient iUsuarioClient) {
         return new RestauranteUseCase(iRestauranteRepositorio, iUsuarioClient);
+    }
+
+    @Bean
+    public IPlatoServicio platoServicio(IPlatoRepositorio iPlatoRepositorio,
+                                        IRestaurantePlatoRepositorio iRestauranteRepositorioPlato,
+                                        IUsuarioClient iUsuarioClient) {
+        return new PlatoUseCase(iPlatoRepositorio, iRestauranteRepositorioPlato, iUsuarioClient);
     }
 
 
