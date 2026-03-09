@@ -27,5 +27,9 @@ public class UsuarioHabdlerImpl implements IUsuarioHandler {
         return usuarioRequestMapper.toResponse(guardado);
     }
 
+    public  UsuarioResponse obetenerUsuario(Long id){
+        return usuarioRequestMapper.toResponse(usuarioServicio.obetenerUsuario(id));
+    }
+
 
 }

@@ -28,6 +28,12 @@ public class UsuarioUseCase implements IUsuarioServicio {
         return usuarioRepository.guardarUsuario(usuario);
     }
 
+    @Override
+    public Usuario obetenerUsuario(Long id) {
+        return usuarioRepository.obetenerUsuario(id)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+    }
+
 
     private boolean esMayorDeEdad(LocalDate fechaNacimiento) {
         return Period.between(fechaNacimiento, LocalDate.now()).getYears() >= 18;

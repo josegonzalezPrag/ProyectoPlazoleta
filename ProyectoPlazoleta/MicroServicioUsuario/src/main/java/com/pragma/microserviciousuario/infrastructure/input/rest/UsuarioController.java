@@ -20,4 +20,9 @@ public class UsuarioController {
         return ResponseEntity.status(HttpStatus.CREATED).body(usuarioHandler.crearPropietario(request));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<UsuarioResponse> obetenerUsuario(@PathVariable Long id){
+        return ResponseEntity.ok(usuarioHandler.obetenerUsuario(id));
+    }
+
 }

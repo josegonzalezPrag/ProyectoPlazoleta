@@ -4,4 +4,5 @@ import com.pragma.microserviciousuario.domain.model.Usuario;
 
 public interface IUsuarioServicio {
     Usuario crearPropietario(Usuario usuario);
+    Usuario obetenerUsuario(Long id);
 }
