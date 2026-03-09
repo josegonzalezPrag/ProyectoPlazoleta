@@ -42,6 +42,21 @@ public class PlatoUseCase implements  IPlatoServicio{
         return platoRepositorio.guardarPlato(plato);
     }
 
+    @Override
+    public Plato actualizarPlato(Long id, Long precio, String descripcion) {
+        Plato plato = platoRepositorio.obtenerPlatoPorId(id)
+                .orElseThrow(() -> new IllegalArgumentException("El plato no existe"));
+
+        if (precio <= 0) {
+            throw new IllegalArgumentException("El precio debe ser mayor a 0");
+        }
+
+        plato.setPrecio(precio);
+        plato.setDescripcion(descripcion);
+
+        return platoRepositorio.guardarPlato(plato);
+    }
+
 
 
 }

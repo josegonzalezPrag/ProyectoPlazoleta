@@ -1,6 +1,7 @@
 package com.pragma.microservicioplazoleta.infrastructure.input.rest;
 
 import com.pragma.microservicioplazoleta.aplication.dto.request.PlatoRequest;
+import com.pragma.microservicioplazoleta.aplication.dto.request.PlatoUptadeRequest;
 import com.pragma.microservicioplazoleta.aplication.dto.response.PlatoResponse;
 import com.pragma.microservicioplazoleta.aplication.handler.IPlatoHandler;
 import jakarta.validation.Valid;
@@ -18,6 +19,12 @@ public class PlatoController {
     @PostMapping("/crear")
     public ResponseEntity<PlatoResponse> crearPlato(@Valid @RequestBody PlatoRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(platoHandler.crearPlato(request));
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<PlatoResponse> actualizarPlato(@PathVariable Long id,
+                                                         @Valid @RequestBody PlatoUptadeRequest request) {
+        return ResponseEntity.ok(platoHandler.actualizarPlato(id, request));
     }
 
 }
