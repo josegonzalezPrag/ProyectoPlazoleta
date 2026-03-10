@@ -27,4 +27,10 @@ public class UsuarioController {
         return ResponseEntity.ok(usuarioHandler.obetenerUsuario(id));
     }
 
+    @PostMapping("/empleado")
+    @PreAuthorize("hasRole('PROPIETARIO')")
+    public ResponseEntity<UsuarioResponse> crearEmpleado(@Valid @RequestBody UsuarioRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(usuarioHandler.crearEmpleado(request));
+    }
+
 }

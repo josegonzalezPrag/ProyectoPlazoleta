@@ -26,6 +26,15 @@ public class UsuarioHabdlerImpl implements IUsuarioHandler {
         return usuarioRequestMapper.toResponse(usuarioServicio.crearPropietario(usuario));
     }
 
+    @Override
+    public UsuarioResponse crearEmpleado(UsuarioRequest request) {
+        Usuario usuario = usuarioRequestMapper.toUsuario(request);
+        rol.setNombre("EMPLEADO");
+        usuario.setRol(rol);
+        return usuarioRequestMapper.toResponse(usuarioServicio.crearEmpleado(usuario));
+    }
+
+    @Override
     public  UsuarioResponse obetenerUsuario(Long id){
         return usuarioRequestMapper.toResponse(usuarioServicio.obetenerUsuario(id));
     }

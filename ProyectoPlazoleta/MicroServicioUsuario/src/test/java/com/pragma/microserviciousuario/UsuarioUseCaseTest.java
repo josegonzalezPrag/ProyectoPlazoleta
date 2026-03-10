@@ -16,6 +16,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.time.LocalDate;
+import java.util.Optional;
+
 
 @ExtendWith(MockitoExtension.class)
 class UsuarioUseCaseTest {
@@ -35,7 +37,6 @@ class UsuarioUseCaseTest {
     void setUp() {
         Rol rol = new Rol();
         rol.setNombre("PROPIETARIO");
-
         usuarioValido = Usuario.builder()
                 .nombre("Carlos")
                 .apellido("Ramirez")
@@ -97,4 +98,70 @@ class UsuarioUseCaseTest {
         assertEquals("El correo no es válido", exception.getMessage());
         verify(iUsuarioRepositorio, never()).guardarUsuario(any());
     }
-}
+
+    @Test
+    void deberiaCrearEmpleadoExitosamente() {
+        usuarioValido.getRol().setNombre("EMPLEADO");
+
+        when(iUsuarioRepositorio.obtenerUsuarioPorCorreo("carlos@gmail.com")).thenReturn(Optional.empty());
+        when(passwordEncoder.encode(any())).thenReturn("claveEncriptada");
+        when(iUsuarioRepositorio.guardarUsuario(any())).thenReturn(usuarioValido);
+
+        Usuario resultado = usuarioUseCase.crearEmpleado(usuarioValido);
+
+        assertNotNull(resultado);
+        verify(iUsuarioRepositorio, times(1)).guardarUsuario(any());
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoCorreoYaExisteEnEmpleado() {
+        when(iUsuarioRepositorio.obtenerUsuarioPorCorreo("carlos@gmail.com")).thenReturn(Optional.of(usuarioValido));
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> usuarioUseCase.crearEmpleado(usuarioValido)
+        );
+
+        assertEquals("Ya existe un usuario con ese correo", exception.getMessage());
+        verify(iUsuarioRepositorio, never()).guardarUsuario(any());
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoEmpleadoEsMenorDeEdad() {
+        usuarioValido.setFechaNacimiento(LocalDate.of(2015, 1, 1));
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> usuarioUseCase.crearEmpleado(usuarioValido)
+        );
+
+        assertEquals("El usuario debe ser mayor de edad", exception.getMessage());
+        verify(iUsuarioRepositorio, never()).guardarUsuario(any());
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoCelularInvalidoEnEmpleado() {
+        usuarioValido.setCelular("+5730156789012345");
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> usuarioUseCase.crearEmpleado(usuarioValido)
+        );
+
+        assertEquals("El celular debe tener máximo 13 caracteres", exception.getMessage());
+        verify(iUsuarioRepositorio, never()).guardarUsuario(any());
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoCorreoInvalidoEnEmpleado() {
+        usuarioValido.setCorreo("correo-invalido");
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> usuarioUseCase.crearEmpleado(usuarioValido)
+        );
+
+        assertEquals("El correo no es válido", exception.getMessage());
+        verify(iUsuarioRepositorio, never()).guardarUsuario(any());
+    }
+    }
