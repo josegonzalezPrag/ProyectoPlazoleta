@@ -2,8 +2,7 @@ package com.pragma.microservicioplazoleta.domain.model;
 
 import lombok.*;
 
-@Getter
-@Setter
+@Getter @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -13,7 +12,7 @@ public class Plato {
     private Long precio;
     private String descripcion;
     private String urlImagen;
-    private String categoria;
+    private Categoria categoria;
     private Boolean activo;
     private Long idRestaurante;
 }

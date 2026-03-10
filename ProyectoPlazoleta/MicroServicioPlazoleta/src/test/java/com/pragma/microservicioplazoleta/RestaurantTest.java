@@ -17,6 +17,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class RestaurantTest {
+
     @Mock
     private IRestauranteRepositorio iRestauranteRepositorio;
 
@@ -31,6 +32,9 @@ class RestaurantTest {
 
     @BeforeEach
     void setUp() {
+        Rol rolPropietario = new Rol();
+        rolPropietario.setNombre("PROPIETARIO");
+
         restauranteValido = Restaurante.builder()
                 .nombre("El Ranchito")
                 .nit(900123456)
@@ -42,7 +46,7 @@ class RestaurantTest {
 
         propietarioValido = new Usuario();
         propietarioValido.setId(2L);
-        propietarioValido.setRol(Rol.PROPIETARIO);
+        propietarioValido.setRolNombre("PROPIETARIO");
     }
 
     @Test
@@ -71,7 +75,7 @@ class RestaurantTest {
 
     @Test
     void deberiaLanzarExcepcionCuandoUsuarioNoEsPropietario() {
-        propietarioValido.setRol(Rol.ADMINISTRADOR);
+        propietarioValido.setRolNombre("ADMINISTRADOR");
         when(iUsuarioClient.obtenerUsuarioPorId(2L)).thenReturn(propietarioValido);
 
         IllegalArgumentException exception = assertThrows(
@@ -83,4 +87,18 @@ class RestaurantTest {
         verify(iRestauranteRepositorio, never()).guardarRestaurante(any());
     }
 
+    @Test
+    void deberiaLanzarExcepcionCuandoTelefonoExcede13Caracteres() {
+        propietarioValido.setRolNombre("PROPIETARIO");
+        when(iUsuarioClient.obtenerUsuarioPorId(2L)).thenReturn(propietarioValido);
+        restauranteValido.setTelefono("+5730156789012345");
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> restauranteUseCase.crearRestaurante(restauranteValido)
+        );
+
+        assertEquals("El teléfono debe tener máximo 13 caracteres", exception.getMessage());
+        verify(iRestauranteRepositorio, never()).guardarRestaurante(any());
+    }
 }

@@ -1,6 +1,5 @@
 package com.pragma.microserviciousuario.aplication.dto.response;
 
-import com.pragma.microserviciousuario.domain.model.Rol;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,5 +15,5 @@ public class UsuarioResponse {
     private String celular;
     private LocalDate fechaNacimiento;
     private String correo;
-    private Rol rol;
+    private String rolNombre;
 }

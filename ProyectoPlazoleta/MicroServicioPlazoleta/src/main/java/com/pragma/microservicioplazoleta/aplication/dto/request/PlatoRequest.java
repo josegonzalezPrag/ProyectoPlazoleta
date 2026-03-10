@@ -22,8 +22,8 @@ public class PlatoRequest {
     @NotBlank
     private String urlImagen;
 
-    @NotBlank
-    private String categoria;
+    @NotNull
+    private Long idCategoria;
 
     @NotNull
     private Long idRestaurante;

@@ -12,8 +12,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class BeanConfiguration {
 
     @Bean
-    public IUsuarioServicio usuarioServicio(IUsuarioRepositorio iUsuarioRepositorio) {
-        return new UsuarioUseCase(iUsuarioRepositorio);
+    public IUsuarioServicio usuarioServicio(IUsuarioRepositorio iUsuarioRepositorio,
+                                            PasswordEncoder passwordEncoder) {
+        return new UsuarioUseCase(iUsuarioRepositorio, passwordEncoder);
     }
 
     @Bean

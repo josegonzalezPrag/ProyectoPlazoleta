@@ -7,22 +7,15 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "platos")
+@Table(name = "categorias")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PlatoEntiy {
+public class CategoriaEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nombre;
-    private Long precio;
     private String descripcion;
-    private String urlImagen;
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "id_categoria")
-    private CategoriaEntity categoria;
-    private Boolean activo;
-    private Long idRestaurante;
 }

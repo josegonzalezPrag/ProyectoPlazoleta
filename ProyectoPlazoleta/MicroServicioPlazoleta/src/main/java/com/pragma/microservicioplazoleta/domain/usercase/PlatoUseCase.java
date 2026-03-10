@@ -30,14 +30,13 @@ public class PlatoUseCase implements  IPlatoServicio{
 
         var propietario = usuarioClient.obtenerUsuarioPorId(restaurante.getIdPropietario());
 
-        if (propietario == null) {
-            throw new IllegalArgumentException("El propietario no existe");
-        }
-
         if (plato.getPrecio() <= 0) {
             throw new IllegalArgumentException("El precio debe ser mayor a 0");
         }
 
+        if (!propietario.getRolNombre().equals("PROPIETARIO")) {
+            throw new IllegalArgumentException("El usuario no tiene rol de Propietario");
+        }
         plato.setActivo(true);
         return platoRepositorio.guardarPlato(plato);
     }

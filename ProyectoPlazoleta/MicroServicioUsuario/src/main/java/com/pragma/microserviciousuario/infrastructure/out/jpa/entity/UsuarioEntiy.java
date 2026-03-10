@@ -1,6 +1,5 @@
 package com.pragma.microserviciousuario.infrastructure.out.jpa.entity;
 
-import com.pragma.microserviciousuario.domain.model.Rol;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -33,6 +32,7 @@ public class UsuarioEntiy {
 
     private String clave;
 
-    @Enumerated(EnumType.STRING)
-    private Rol rol;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "id_rol")
+    private RolEntity rol;
 }

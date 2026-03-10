@@ -6,8 +6,8 @@ import com.pragma.microserviciousuario.aplication.handler.IUsuarioHandler;
 import com.pragma.microserviciousuario.aplication.mapper.UsuarioRequestMapper;
 import com.pragma.microserviciousuario.domain.api.IUsuarioServicio;
 import com.pragma.microserviciousuario.domain.model.Rol;
+import com.pragma.microserviciousuario.domain.model.Usuario;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,15 +16,14 @@ public class UsuarioHabdlerImpl implements IUsuarioHandler {
 
     private final IUsuarioServicio usuarioServicio;
     private final UsuarioRequestMapper usuarioRequestMapper;
-    private final PasswordEncoder passwordEncoder;
+    private final Rol rol = new Rol();
 
     @Override
     public UsuarioResponse crearPropietario(UsuarioRequest request) {
-        var usuario = usuarioRequestMapper.toUsuario(request);
-        usuario.setClave(passwordEncoder.encode(request.getClave()));
-        usuario.setRol(Rol.PROPIETARIO);
-        var guardado = usuarioServicio.crearPropietario(usuario);
-        return usuarioRequestMapper.toResponse(guardado);
+        Usuario usuario = usuarioRequestMapper.toUsuario(request);
+        rol.setNombre("PROPIETARIO");
+        usuario.setRol(rol);
+        return usuarioRequestMapper.toResponse(usuarioServicio.crearPropietario(usuario));
     }
 
     public  UsuarioResponse obetenerUsuario(Long id){

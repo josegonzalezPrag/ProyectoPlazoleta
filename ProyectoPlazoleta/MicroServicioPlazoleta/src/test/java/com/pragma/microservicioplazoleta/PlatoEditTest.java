@@ -1,9 +1,8 @@
 package com.pragma.microservicioplazoleta;
 
+import com.pragma.microservicioplazoleta.domain.model.Categoria;
 import com.pragma.microservicioplazoleta.domain.model.Plato;
 import com.pragma.microservicioplazoleta.domain.spi.IPlatoRepositorio;
-import com.pragma.microservicioplazoleta.domain.spi.IRestaurantePlatoRepositorio;
-import com.pragma.microservicioplazoleta.domain.spi.IUsuarioClient;
 import com.pragma.microservicioplazoleta.domain.usercase.PlatoUseCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,31 +17,31 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class PlatoEditTest {
+class PlatoEditTest {
 
     @Mock
     private IPlatoRepositorio iPlatoRepositorio;
-
-    @Mock
-    private IRestaurantePlatoRepositorio iRestauranteRepositorioPlato;
-
-    @Mock
-    private IUsuarioClient iUsuarioClient;
 
     @InjectMocks
     private PlatoUseCase platoUseCase;
 
     private Plato platoExistente;
+    private Categoria categoriaValida;
 
     @BeforeEach
     void setUp() {
+        categoriaValida = new Categoria();
+        categoriaValida.setId(1L);
+        categoriaValida.setNombre("Típica colombiana");
+        categoriaValida.setDescripcion("Platos tradicionales de Colombia");
+
         platoExistente = Plato.builder()
                 .id(1L)
                 .nombre("Bandeja Paisa")
                 .precio(25000L)
                 .descripcion("Plato típico colombiano")
                 .urlImagen("https://images.com/bandeja.png")
-                .categoria("Típica colombiana")
+                .categoria(categoriaValida) // <-- Objeto Categoria en lugar de String
                 .activo(true)
                 .idRestaurante(1L)
                 .build();
@@ -83,8 +82,9 @@ public class PlatoEditTest {
 
         assertEquals(30000L, platoExistente.getPrecio());
         assertEquals("Descripcion actualizada", platoExistente.getDescripcion());
+        // Campos que NO deben cambiar
         assertEquals("Bandeja Paisa", platoExistente.getNombre());
-        assertEquals("Típica colombiana", platoExistente.getCategoria());
+        assertEquals("Típica colombiana", platoExistente.getCategoria().getNombre()); // <-- getNombre() sobre objeto
         assertEquals("https://images.com/bandeja.png", platoExistente.getUrlImagen());
     }
 

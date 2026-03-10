@@ -6,13 +6,14 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-
+    private final JwtFilter jwtFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) {
@@ -26,7 +27,10 @@ public class SecurityConfig {
                                 "/auth/**",
                                 "/usuario/**"
                         ).permitAll()
-                );
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/usuario/propietario").hasRole("ADMINISTRADOR")
+                        .anyRequest().authenticated()
+                )
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);  // ← ¿tienes esto?
         return http.build();
     }
 }

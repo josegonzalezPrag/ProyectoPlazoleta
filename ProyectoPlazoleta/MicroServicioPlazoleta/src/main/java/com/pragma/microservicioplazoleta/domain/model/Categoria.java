@@ -5,7 +5,7 @@ import lombok.*;
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Rol {
+public class Categoria {
     private Long id;
     private String nombre;
     private String descripcion;

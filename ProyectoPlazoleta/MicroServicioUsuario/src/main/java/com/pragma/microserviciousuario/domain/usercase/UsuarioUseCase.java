@@ -4,13 +4,17 @@ package com.pragma.microserviciousuario.domain.usercase;
 import com.pragma.microserviciousuario.domain.api.IUsuarioServicio;
 import com.pragma.microserviciousuario.domain.model.Usuario;
 import com.pragma.microserviciousuario.domain.spi.IUsuarioRepositorio;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import java.time.LocalDate;
 import java.time.Period;
 
 public class UsuarioUseCase implements IUsuarioServicio {
     private final IUsuarioRepositorio usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UsuarioUseCase(IUsuarioRepositorio iUsuarioRepositorio) {
+    public UsuarioUseCase(IUsuarioRepositorio iUsuarioRepositorio, PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
         this.usuarioRepository = iUsuarioRepositorio;
     }
 
@@ -25,6 +29,7 @@ public class UsuarioUseCase implements IUsuarioServicio {
         if (!correoValido(usuario.getCorreo())) {
             throw new IllegalArgumentException("El correo no es válido");
         }
+        usuario.setClave(passwordEncoder.encode(usuario.getClave()));
         return usuarioRepository.guardarUsuario(usuario);
     }
 

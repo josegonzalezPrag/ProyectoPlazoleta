@@ -12,5 +12,5 @@ import lombok.Setter;
 public class Usuario {
     private Long id;
     private String correo;
-    private Rol rol;
+    private String rolNombre;
 }
