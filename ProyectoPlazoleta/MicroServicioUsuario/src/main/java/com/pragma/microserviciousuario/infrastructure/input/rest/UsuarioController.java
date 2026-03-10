@@ -33,4 +33,9 @@ public class UsuarioController {
         return ResponseEntity.status(HttpStatus.CREATED).body(usuarioHandler.crearEmpleado(request));
     }
 
+    @PostMapping("/cliente")
+    public ResponseEntity<UsuarioResponse> crearCliente(@Valid @RequestBody UsuarioRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(usuarioHandler.crearCliente(request));
+    }
+
 }

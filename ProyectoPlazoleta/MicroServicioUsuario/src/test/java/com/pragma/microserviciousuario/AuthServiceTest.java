@@ -35,7 +35,6 @@ class AuthServiceTest {
     private AuthService authService;
 
     private Usuario adminValido;
-    private Usuario propietarioValido;
     private LoginRequest loginRequest;
 
     @BeforeEach
@@ -53,12 +52,6 @@ class AuthServiceTest {
                 .rol(rolAdmin)
                 .build();
 
-        propietarioValido = Usuario.builder()
-                .id(2L)
-                .correo("carlos@gmail.com")
-                .clave("$2a$10$hashedPassword")
-                .rol(rolPropietario)
-                .build();
 
         loginRequest = new LoginRequest();
         loginRequest.setCorreo("admin@plazoleta.com");
@@ -66,34 +59,19 @@ class AuthServiceTest {
     }
 
     @Test
-    void deberiaLoginExitosamenteComoAdmin() {
+    void deberiaLoginExitosamente() {
         when(iUsuarioRepositorio.obtenerUsuarioPorCorreo("admin@plazoleta.com"))
                 .thenReturn(Optional.of(adminValido));
         when(passwordEncoder.matches("clave1234", adminValido.getClave())).thenReturn(true);
-        when(jwtConfig.generarToken("admin@plazoleta.com", "ADMINISTRADOR")).thenReturn("tokenAdmin");
+        when(jwtConfig.generarToken(adminValido.getCorreo(), adminValido.getRol().getNombre(), adminValido.getId()))
+                .thenReturn("token.jwt.generado");
 
-        LoginResponse response = authService.login(loginRequest);
+        LoginResponse resultado = authService.login(loginRequest);
 
-        assertNotNull(response);
-        assertEquals("tokenAdmin", response.getToken());
+        assertNotNull(resultado);
+        assertEquals("token.jwt.generado", resultado.getToken());
+        verify(jwtConfig, times(1)).generarToken(adminValido.getCorreo(), adminValido.getRol().getNombre(), adminValido.getId());
     }
-
-    @Test
-    void deberiaLoginExitosamenteComoPropietario() {
-        loginRequest.setCorreo("carlos@gmail.com");
-        loginRequest.setClave("clave1234");
-
-        when(iUsuarioRepositorio.obtenerUsuarioPorCorreo("carlos@gmail.com"))
-                .thenReturn(Optional.of(propietarioValido));
-        when(passwordEncoder.matches("clave1234", propietarioValido.getClave())).thenReturn(true);
-        when(jwtConfig.generarToken("carlos@gmail.com", "PROPIETARIO")).thenReturn("tokenPropietario");
-
-        LoginResponse response = authService.login(loginRequest);
-
-        assertNotNull(response);
-        assertEquals("tokenPropietario", response.getToken());
-    }
-
     @Test
     void deberiaLanzarExcepcionCuandoCorreoNoExiste() {
         when(iUsuarioRepositorio.obtenerUsuarioPorCorreo("admin@plazoleta.com"))

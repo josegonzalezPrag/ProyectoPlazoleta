@@ -57,6 +57,21 @@ public class UsuarioUseCase implements IUsuarioServicio {
         return usuarioRepository.guardarUsuario(usuario);
     }
 
+    @Override
+    public Usuario crearCliente(Usuario usuario) {
+        if (!celularValido(usuario.getCelular())) {
+            throw new IllegalArgumentException("El celular debe tener máximo 13 caracteres");
+        }
+        if (!correoValido(usuario.getCorreo())) {
+            throw new IllegalArgumentException("El correo no es válido");
+        }
+        if (usuarioRepository.obtenerUsuarioPorCorreo(usuario.getCorreo()).isPresent()) {
+            throw new IllegalArgumentException("Ya existe un usuario con ese correo");
+        }
+        usuario.setClave(passwordEncoder.encode(usuario.getClave()));
+        return usuarioRepository.guardarUsuario(usuario);
+    }
+
 
     private boolean esMayorDeEdad(LocalDate fechaNacimiento) {
         return Period.between(fechaNacimiento, LocalDate.now()).getYears() >= 18;

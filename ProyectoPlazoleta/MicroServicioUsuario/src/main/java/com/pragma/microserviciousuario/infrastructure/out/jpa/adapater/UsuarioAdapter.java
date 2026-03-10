@@ -23,9 +23,8 @@ public class UsuarioAdapter implements IUsuarioRepositorio {
     @Override
     public Usuario guardarUsuario(Usuario usuario) {
         UsuarioEntiy entity = usuarioEntiyMapper.toEntity(usuario);
-
-        RolEntity rolEntity = rolRepositorio.findByNombre(usuario.getRol().getNombre())
-                .orElseThrow(() -> new IllegalArgumentException("Rol no encontrado: " + usuario.getRol().getNombre()));
+        RolEntity rolEntity = rolRepositorio.findById(usuario.getRol().getId())
+                .orElseThrow(() -> new IllegalArgumentException("Rol no encontrado: " + usuario.getRol().getId()));
         entity.setRol(rolEntity);
 
         return usuarioEntiyMapper.toModel(usuarioRepositorio.save(entity));
