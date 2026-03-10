@@ -9,6 +9,9 @@ import com.pragma.microservicioplazoleta.domain.api.IRestauranteServicio;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
+
 @Service
 @RequiredArgsConstructor
 public class RestauranteHandlerImpl implements IRestauranteHandler {
@@ -20,5 +23,13 @@ public class RestauranteHandlerImpl implements IRestauranteHandler {
         var restaurante = restauranteRequestMapper.toRestaurante(request);
         var guardado = restauranteServicio.crearRestaurante(restaurante);
         return restauranteRequestMapper.toResponse(guardado);
+    }
+
+    @Override
+    public List<RestauranteResponse> listarRestaurantes(int pagina, int tamano) {
+        return restauranteServicio.listarRestaurantes(pagina, tamano)
+                .stream()
+                .map(restauranteRequestMapper::toResponse)
+                .toList();
     }
 }

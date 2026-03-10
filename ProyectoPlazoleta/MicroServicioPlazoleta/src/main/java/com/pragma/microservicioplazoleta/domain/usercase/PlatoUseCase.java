@@ -9,6 +9,7 @@ import com.pragma.microservicioplazoleta.domain.spi.IPlatoRepositorio;
 import com.pragma.microservicioplazoleta.domain.spi.IRestaurantePlatoRepositorio;
 import com.pragma.microservicioplazoleta.domain.spi.IUsuarioClient;
 
+
 public class PlatoUseCase implements  IPlatoServicio{
     private final IPlatoRepositorio platoRepositorio;
     private final IRestaurantePlatoRepositorio restauranteRepositorio;
@@ -33,6 +34,18 @@ public class PlatoUseCase implements  IPlatoServicio{
         if (plato.getPrecio() <= 0) {
             throw new IllegalArgumentException("El precio debe ser mayor a 0");
         }
+
+        if (propietario == null) {
+            throw new IllegalArgumentException("El propietario no existe");
+        }
+        if (plato.getCategoria() == null) {
+            throw new IllegalArgumentException("La categoría no puede ser nula");
+        }
+
+        if (plato.getCategoria().getId() == null) {
+            throw new IllegalArgumentException("La categoría debe tener un ID válido");
+        }
+
 
         if (!propietario.getRolNombre().equals("PROPIETARIO")) {
             throw new IllegalArgumentException("El usuario no tiene rol de Propietario");

@@ -7,6 +7,8 @@ import com.pragma.microservicioplazoleta.domain.model.Usuario;
 import com.pragma.microservicioplazoleta.domain.spi.IRestauranteRepositorio;
 import com.pragma.microservicioplazoleta.domain.spi.IUsuarioClient;
 
+import java.util.List;
+
 public class RestauranteUseCase implements IRestauranteServicio {
     private final IRestauranteRepositorio restauranteRepositorio;
     private final IUsuarioClient usuarioClient;
@@ -33,4 +35,8 @@ public class RestauranteUseCase implements IRestauranteServicio {
         return restauranteRepositorio.guardarRestaurante(restaurante);
     }
 
+    @Override
+    public List<Restaurante> listarRestaurantes(int pagina, int tamano) {
+        return restauranteRepositorio.listarRestaurantes(pagina, tamano);
+    }
 }

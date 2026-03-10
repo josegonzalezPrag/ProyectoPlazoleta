@@ -37,11 +37,10 @@ class PlatoUseCaseTest {
     private Plato platoValido;
     private Restaurante restauranteValido;
     private Usuario propietarioValido;
-    private Categoria categoriaValida;
 
     @BeforeEach
     void setUp() {
-        categoriaValida = new Categoria();
+        Categoria categoriaValida = new Categoria();
         categoriaValida.setId(1L);
         categoriaValida.setNombre("Típica colombiana");
         categoriaValida.setDescripcion("Platos tradicionales de Colombia");
@@ -122,7 +121,7 @@ class PlatoUseCaseTest {
                 () -> platoUseCase.crearPlato(platoValido)
         );
 
-        assertEquals("El usuario no es propietario", exception.getMessage());
+        assertEquals("El usuario no tiene rol de Propietario", exception.getMessage());
         verify(iPlatoRepositorio, never()).guardarPlato(any());
     }
 
