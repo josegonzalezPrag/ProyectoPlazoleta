@@ -42,4 +42,13 @@ public class JwtConfig {
             return false;
         }
     }
+
+    public Long extraerId(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("id", Long.class);
+    }
 }

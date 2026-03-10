@@ -21,10 +21,11 @@ public class JwTConfig {
         return Keys.hmacShaKeyFor(secret.getBytes());
     }
 
-    public String generarToken(String correo, String rol) {
+    public String generarToken(String correo, String rol,Long id) {
         return Jwts.builder()
                 .setSubject(correo)
                 .claim("rol", rol)
+                .claim("id", id)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getKey(), SignatureAlgorithm.HS256)
@@ -57,4 +58,14 @@ public class JwTConfig {
             return false;
         }
     }
+
+    public Long extraerId(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("id", Long.class);
+    }
+
 }

@@ -26,11 +26,10 @@ class PlatoEditTest {
     private PlatoUseCase platoUseCase;
 
     private Plato platoExistente;
-    private Categoria categoriaValida;
 
     @BeforeEach
     void setUp() {
-        categoriaValida = new Categoria();
+        Categoria categoriaValida = new Categoria();
         categoriaValida.setId(1L);
         categoriaValida.setNombre("Típica colombiana");
         categoriaValida.setDescripcion("Platos tradicionales de Colombia");
@@ -41,7 +40,7 @@ class PlatoEditTest {
                 .precio(25000L)
                 .descripcion("Plato típico colombiano")
                 .urlImagen("https://images.com/bandeja.png")
-                .categoria(categoriaValida) // <-- Objeto Categoria en lugar de String
+                .categoria(categoriaValida)
                 .activo(true)
                 .idRestaurante(1L)
                 .build();
@@ -82,7 +81,6 @@ class PlatoEditTest {
 
         assertEquals(30000L, platoExistente.getPrecio());
         assertEquals("Descripcion actualizada", platoExistente.getDescripcion());
-        // Campos que NO deben cambiar
         assertEquals("Bandeja Paisa", platoExistente.getNombre());
         assertEquals("Típica colombiana", platoExistente.getCategoria().getNombre()); // <-- getNombre() sobre objeto
         assertEquals("https://images.com/bandeja.png", platoExistente.getUrlImagen());

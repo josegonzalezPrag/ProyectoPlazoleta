@@ -56,6 +56,22 @@ public class PlatoUseCase implements  IPlatoServicio{
         return platoRepositorio.guardarPlato(plato);
     }
 
+    @Override
+    public Plato cambiarEstadoPlato(Long idPlato, Boolean activo, Long idPropietarioAutenticado) {
+        Plato plato = platoRepositorio.obtenerPlatoPorId(idPlato)
+                .orElseThrow(() -> new IllegalArgumentException("El plato no existe"));
+
+        Restaurante restaurante = restauranteRepositorio.obtenerRestaurantePorId(plato.getIdRestaurante())
+                .orElseThrow(() -> new IllegalArgumentException("El restaurante no existe"));
+
+        if (!restaurante.getIdPropietario().equals(idPropietarioAutenticado)) {
+            throw new IllegalArgumentException("No tienes permiso para modificar este plato");
+        }
+
+        plato.setActivo(activo);
+        return platoRepositorio.guardarPlato(plato);
+    }
+
 
 
 }

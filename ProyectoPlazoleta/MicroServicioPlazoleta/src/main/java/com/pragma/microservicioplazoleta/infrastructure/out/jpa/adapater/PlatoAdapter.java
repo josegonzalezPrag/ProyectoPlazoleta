@@ -26,9 +26,10 @@ public class PlatoAdapter implements IPlatoRepositorio {
         CategoriaEntity categoriaEntity = categoriaRepositorio.findById(plato.getCategoria().getId())
                 .orElseThrow(() -> new IllegalArgumentException("Categoria no encontrada"));
         entity.setCategoria(categoriaEntity);
-        return platoEntityMapper.toModel(
-                platoRepositorio.save(platoEntityMapper.toEntidy(plato))
-        );
+
+        PlatoEntiy guardado = platoRepositorio.save(entity);
+
+        return platoEntityMapper.toModel(guardado);
     }
 
     @Override

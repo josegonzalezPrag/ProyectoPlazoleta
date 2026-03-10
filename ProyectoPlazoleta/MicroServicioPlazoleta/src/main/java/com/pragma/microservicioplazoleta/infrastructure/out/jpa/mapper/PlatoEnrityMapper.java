@@ -12,5 +12,9 @@ import org.mapstruct.ReportingPolicy;
 public interface PlatoEnrityMapper {
     @Mapping(target = "categoria", ignore = true)
     PlatoEntiy toEntidy(Plato plato);
+
+    @Mapping(source = "categoria.id", target = "categoria.id")
+    @Mapping(source = "categoria.nombre", target = "categoria.nombre")
+    @Mapping(source = "categoria.descripcion", target = "categoria.descripcion")
     Plato toModel(PlatoEntiy platoEntiy);
 }

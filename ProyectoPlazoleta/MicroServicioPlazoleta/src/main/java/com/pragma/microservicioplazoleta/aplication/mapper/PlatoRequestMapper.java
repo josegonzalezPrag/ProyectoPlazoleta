@@ -14,5 +14,6 @@ import org.mapstruct.ReportingPolicy;
 public interface PlatoRequestMapper {
     @Mapping(source = "idCategoria", target = "categoria.id")
     Plato toPlato(PlatoRequest request);
+
     PlatoResponse toResponse(Plato plato);
 }
