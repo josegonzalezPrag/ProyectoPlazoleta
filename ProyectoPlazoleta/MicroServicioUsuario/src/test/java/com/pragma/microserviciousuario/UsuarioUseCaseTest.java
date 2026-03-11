@@ -111,11 +111,11 @@ class UsuarioUseCaseTest {
         when(iUsuarioRepositorio.guardarUsuario(any())).thenReturn(usuarioValido);
         doNothing().when(plazoletaClient).asignarEmpleado(any()); // <-- mockear llamada a Plazoleta
 
-        Usuario resultado = usuarioUseCase.crearEmpleado(usuarioValido, 1L); // <-- agregar idRestaurante
+        Usuario resultado = usuarioUseCase.crearEmpleado(usuarioValido, 1L);
 
         assertNotNull(resultado);
         verify(iUsuarioRepositorio, times(1)).guardarUsuario(any());
-        verify(plazoletaClient, times(1)).asignarEmpleado(any()); // <-- verificar que se llamó
+        verify(plazoletaClient, times(1)).asignarEmpleado(any());
     }
 
     @Test
@@ -124,12 +124,12 @@ class UsuarioUseCaseTest {
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> usuarioUseCase.crearEmpleado(usuarioValido, 1L) // <-- agregar idRestaurante
+                () -> usuarioUseCase.crearEmpleado(usuarioValido, 1L)
         );
 
         assertEquals("Ya existe un usuario con ese correo", exception.getMessage());
         verify(iUsuarioRepositorio, never()).guardarUsuario(any());
-        verify(plazoletaClient, never()).asignarEmpleado(any()); // <-- verificar que NO se llamó
+        verify(plazoletaClient, never()).asignarEmpleado(any());
     }
 
     @Test
