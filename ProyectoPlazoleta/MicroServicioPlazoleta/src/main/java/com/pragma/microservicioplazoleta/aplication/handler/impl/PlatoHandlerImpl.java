@@ -12,6 +12,8 @@ import com.pragma.microservicioplazoleta.domain.api.IPlatoServicio;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class PlatoHandlerImpl implements IPlatoHandler {
@@ -44,6 +46,24 @@ public class PlatoHandlerImpl implements IPlatoHandler {
     public PlatoResponse cambiarEstadoPlato(Long id, PlatoEstadoRequest request, Long idPropietario) {
         var actualizado = platoServicio.cambiarEstadoPlato(id, request.getActivo(), idPropietario);
         return platoRequestMapper.toResponse(actualizado);
+    }
+
+    @Override
+    public List<PlatoResponse> listarPlatosPorRestaurante(Long idRestaurante, Long idCategoria, int pagina, int tamano) {
+        return platoServicio.listarPlatosPorRestaurante(idRestaurante, idCategoria, pagina, tamano)
+                .stream()
+                .map(plato -> {
+                    PlatoResponse response = platoRequestMapper.toResponse(plato);
+                    if (plato.getCategoria() != null) {
+                        CategoriaResponse categoriaResponse = new CategoriaResponse();
+                        categoriaResponse.setId(plato.getCategoria().getId());
+                        categoriaResponse.setNombre(plato.getCategoria().getNombre());
+                        categoriaResponse.setDescripcion(plato.getCategoria().getDescripcion());
+                        response.setIdcategoria(categoriaResponse);
+                    }
+                    return response;
+                })
+                .toList();
     }
 
 }

@@ -14,6 +14,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/plato")
 @RequiredArgsConstructor
@@ -48,6 +50,16 @@ public class PlatoController {
         Long idPropietario = (Long) auth.getCredentials();
 
         return ResponseEntity.ok(platoHandler.cambiarEstadoPlato(id, request, idPropietario));
+    }
+
+    @GetMapping("/restaurante/{idRestaurante}")
+    @PreAuthorize("hasRole('CLIENTE')")
+    public ResponseEntity<List<PlatoResponse>> listarPlatosPorRestaurante(
+            @PathVariable Long idRestaurante,
+            @RequestParam(required = false) Long idCategoria,
+            @RequestParam(defaultValue = "0") int pagina,
+            @RequestParam(defaultValue = "10") int tamano) {
+        return ResponseEntity.ok(platoHandler.listarPlatosPorRestaurante(idRestaurante, idCategoria, pagina, tamano));
     }
 
 }

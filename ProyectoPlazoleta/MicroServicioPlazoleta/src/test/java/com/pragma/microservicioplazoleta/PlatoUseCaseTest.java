@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
@@ -182,5 +183,68 @@ class PlatoUseCaseTest {
 
         assertEquals("La categoría debe tener un ID válido", exception.getMessage());
         verify(iPlatoRepositorio, never()).guardarPlato(any());
+    }
+
+    @Test
+    void deberiaListarPlatosPorRestauranteExitosamente() {
+        List<Plato> platos = List.of(
+                platoValido,
+                Plato.builder()
+                        .nombre("Ajiaco")
+                        .precio(20000L)
+                        .descripcion("Sopa típica bogotana")
+                        .urlImagen("https://images.com/ajiaco.png")
+                        .categoria(platoValido.getCategoria())
+                        .idRestaurante(1L)
+                        .build()
+        );
+
+        when(iRestauranteRepositorioPlato.obtenerRestaurantePorId(1L)).thenReturn(Optional.of(restauranteValido));
+        when(iPlatoRepositorio.listarPlatosPorRestaurante(1L, null, 0, 10)).thenReturn(platos);
+
+        List<Plato> resultado = platoUseCase.listarPlatosPorRestaurante(1L, null, 0, 10);
+
+        assertNotNull(resultado);
+        assertEquals(2, resultado.size());
+        verify(iPlatoRepositorio, times(1)).listarPlatosPorRestaurante(1L, null, 0, 10);
+    }
+
+    @Test
+    void deberiaListarPlatosFiltradosPorCategoria() {
+        List<Plato> platos = List.of(platoValido);
+
+        when(iRestauranteRepositorioPlato.obtenerRestaurantePorId(1L)).thenReturn(Optional.of(restauranteValido));
+        when(iPlatoRepositorio.listarPlatosPorRestaurante(1L, 1L, 0, 10)).thenReturn(platos);
+
+        List<Plato> resultado = platoUseCase.listarPlatosPorRestaurante(1L, 1L, 0, 10);
+
+        assertNotNull(resultado);
+        assertEquals(1, resultado.size());
+        assertEquals("Típica colombiana", resultado.getFirst().getCategoria().getNombre());
+        verify(iPlatoRepositorio, times(1)).listarPlatosPorRestaurante(1L, 1L, 0, 10);
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoRestauranteNoExisteAlListar() {
+        when(iRestauranteRepositorioPlato.obtenerRestaurantePorId(1L)).thenReturn(Optional.empty());
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> platoUseCase.listarPlatosPorRestaurante(1L, null, 0, 10)
+        );
+
+        assertEquals("El restaurante no existe", exception.getMessage());
+        verify(iPlatoRepositorio, never()).listarPlatosPorRestaurante(any(), any(), anyInt(), anyInt());
+    }
+
+    @Test
+    void deberiaRetornarListaVaciaCuandoNoHayPlatos() {
+        when(iRestauranteRepositorioPlato.obtenerRestaurantePorId(1L)).thenReturn(Optional.of(restauranteValido));
+        when(iPlatoRepositorio.listarPlatosPorRestaurante(1L, null, 0, 10)).thenReturn(List.of());
+
+        List<Plato> resultado = platoUseCase.listarPlatosPorRestaurante(1L, null, 0, 10);
+
+        assertNotNull(resultado);
+        assertEquals(0, resultado.size());
     }
 }

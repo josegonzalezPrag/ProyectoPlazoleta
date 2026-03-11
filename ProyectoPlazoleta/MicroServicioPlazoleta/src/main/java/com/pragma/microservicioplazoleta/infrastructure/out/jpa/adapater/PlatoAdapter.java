@@ -11,6 +11,7 @@ import com.pragma.microservicioplazoleta.infrastructure.out.jpa.repository.Plato
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -49,6 +50,37 @@ public class PlatoAdapter implements IPlatoRepositorio {
                     }
                     return plato;
                 });
+    }
+
+    @Override
+    public List<Plato> listarPlatosPorRestaurante(Long idRestaurante, Long idCategoria, int pagina, int tamano) {
+        List<PlatoEntiy> entities;
+
+        if (idCategoria != null) {
+            entities = platoRepositorio.findByIdRestauranteAndCategoriaId(idRestaurante, idCategoria);
+        } else {
+            entities = platoRepositorio.findByIdRestaurante(idRestaurante);
+        }
+
+        int inicio = pagina * tamano;
+        int fin = Math.min(inicio + tamano, entities.size());
+
+        if (inicio >= entities.size()) return List.of();
+
+        return entities.subList(inicio, fin)
+                .stream()
+                .map(entity -> {
+                    Plato plato = platoEntityMapper.toModel(entity);
+                    if (entity.getCategoria() != null) {
+                        Categoria categoria = new Categoria();
+                        categoria.setId(entity.getCategoria().getId());
+                        categoria.setNombre(entity.getCategoria().getNombre());
+                        categoria.setDescripcion(entity.getCategoria().getDescripcion());
+                        plato.setCategoria(categoria);
+                    }
+                    return plato;
+                })
+                .toList();
     }
 
 }

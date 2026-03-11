@@ -9,6 +9,8 @@ import com.pragma.microservicioplazoleta.domain.spi.IPlatoRepositorio;
 import com.pragma.microservicioplazoleta.domain.spi.IRestaurantePlatoRepositorio;
 import com.pragma.microservicioplazoleta.domain.spi.IUsuarioClient;
 
+import java.util.List;
+
 
 public class PlatoUseCase implements  IPlatoServicio{
     private final IPlatoRepositorio platoRepositorio;
@@ -25,10 +27,7 @@ public class PlatoUseCase implements  IPlatoServicio{
 
     @Override
     public Plato crearPlato(Plato plato) {
-        Restaurante restaurante = restauranteRepositorio
-                .obtenerRestaurantePorId(plato.getIdRestaurante())
-                .orElseThrow(() -> new IllegalArgumentException("El restaurante no existe"));
-
+        Restaurante restaurante = obtenerRestauranteOFallar(plato.getIdRestaurante());
         var propietario = usuarioClient.obtenerUsuarioPorId(restaurante.getIdPropietario());
 
         if (plato.getPrecio() <= 0) {
@@ -45,7 +44,6 @@ public class PlatoUseCase implements  IPlatoServicio{
         if (plato.getCategoria().getId() == null) {
             throw new IllegalArgumentException("La categoría debe tener un ID válido");
         }
-
 
         if (!propietario.getRolNombre().equals("PROPIETARIO")) {
             throw new IllegalArgumentException("El usuario no tiene rol de Propietario");
@@ -74,8 +72,7 @@ public class PlatoUseCase implements  IPlatoServicio{
         Plato plato = platoRepositorio.obtenerPlatoPorId(idPlato)
                 .orElseThrow(() -> new IllegalArgumentException("El plato no existe"));
 
-        Restaurante restaurante = restauranteRepositorio.obtenerRestaurantePorId(plato.getIdRestaurante())
-                .orElseThrow(() -> new IllegalArgumentException("El restaurante no existe"));
+        Restaurante restaurante = obtenerRestauranteOFallar(plato.getIdRestaurante());
 
         if (!restaurante.getIdPropietario().equals(idPropietarioAutenticado)) {
             throw new IllegalArgumentException("No tienes permiso para modificar este plato");
@@ -85,6 +82,16 @@ public class PlatoUseCase implements  IPlatoServicio{
         return platoRepositorio.guardarPlato(plato);
     }
 
+    @Override
+    public List<Plato> listarPlatosPorRestaurante(Long idRestaurante, Long idCategoria, int pagina, int tamano) {
+        Restaurante restaurante = obtenerRestauranteOFallar(idRestaurante);
+        return platoRepositorio.listarPlatosPorRestaurante(restaurante.getId(), idCategoria, pagina, tamano);
+    }
+
+    private Restaurante obtenerRestauranteOFallar(Long idRestaurante) {
+        return restauranteRepositorio.obtenerRestaurantePorId(idRestaurante)
+                .orElseThrow(() -> new IllegalArgumentException("El restaurante no existe"));
+    }
 
 
 }
