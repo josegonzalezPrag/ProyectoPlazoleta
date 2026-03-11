@@ -1,9 +1,11 @@
 package com.pragma.microserviciousuario.domain.usercase;
 
 
+import com.pragma.microserviciousuario.aplication.dto.request.RestauranteEmpleadoRequest;
 import com.pragma.microserviciousuario.domain.api.IUsuarioServicio;
 import com.pragma.microserviciousuario.domain.model.Usuario;
 import com.pragma.microserviciousuario.domain.spi.IUsuarioRepositorio;
+import com.pragma.microserviciousuario.infrastructure.out.feign.IPlazoletaClient;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
@@ -12,10 +14,12 @@ import java.time.Period;
 public class UsuarioUseCase implements IUsuarioServicio {
     private final IUsuarioRepositorio usuarioRepository;
     private final PasswordEncoder passwordEncoder;
+    private final IPlazoletaClient plazoletaClient;
 
-    public UsuarioUseCase(IUsuarioRepositorio iUsuarioRepositorio, PasswordEncoder passwordEncoder) {
+    public UsuarioUseCase(IUsuarioRepositorio iUsuarioRepositorio, PasswordEncoder passwordEncoder, IPlazoletaClient plazoletaClient) {
         this.passwordEncoder = passwordEncoder;
         this.usuarioRepository = iUsuarioRepositorio;
+        this.plazoletaClient = plazoletaClient;
     }
 
     @Override
@@ -40,7 +44,7 @@ public class UsuarioUseCase implements IUsuarioServicio {
     }
 
     @Override
-    public Usuario crearEmpleado(Usuario usuario) {
+    public Usuario crearEmpleado(Usuario usuario, Long idRestaurante) {
         if (!esMayorDeEdad(usuario.getFechaNacimiento())) {
             throw new IllegalArgumentException("El usuario debe ser mayor de edad");
         }
@@ -54,7 +58,14 @@ public class UsuarioUseCase implements IUsuarioServicio {
             throw new IllegalArgumentException("Ya existe un usuario con ese correo");
         }
         usuario.setClave(passwordEncoder.encode(usuario.getClave()));
-        return usuarioRepository.guardarUsuario(usuario);
+        Usuario guardado = usuarioRepository.guardarUsuario(usuario);
+
+        RestauranteEmpleadoRequest relacion = new RestauranteEmpleadoRequest();
+        relacion.setIdEmpleado(guardado.getId());
+        relacion.setIdRestaurante(idRestaurante);
+        plazoletaClient.asignarEmpleado(relacion);
+
+        return guardado;
     }
 
     @Override

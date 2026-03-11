@@ -16,11 +16,12 @@ public class UsuarioHabdlerImpl implements IUsuarioHandler {
 
     private final IUsuarioServicio usuarioServicio;
     private final UsuarioRequestMapper usuarioRequestMapper;
-    private final Rol rol = new Rol();
 
     @Override
     public UsuarioResponse crearPropietario(UsuarioRequest request) {
         Usuario usuario = usuarioRequestMapper.toUsuario(request);
+        Rol rol = new Rol();
+        rol.setId(2L);
         rol.setNombre("PROPIETARIO");
         usuario.setRol(rol);
         return usuarioRequestMapper.toResponse(usuarioServicio.crearPropietario(usuario));
@@ -29,9 +30,13 @@ public class UsuarioHabdlerImpl implements IUsuarioHandler {
     @Override
     public UsuarioResponse crearEmpleado(UsuarioRequest request) {
         Usuario usuario = usuarioRequestMapper.toUsuario(request);
-        rol.setNombre("EMPLEADO");
-        usuario.setRol(rol);
-        return usuarioRequestMapper.toResponse(usuarioServicio.crearEmpleado(usuario));
+        Rol rolEmpleado = new Rol();
+        rolEmpleado.setId(3L);
+        rolEmpleado.setNombre("EMPLEADO");
+        usuario.setRol(rolEmpleado);
+        return usuarioRequestMapper.toResponse(
+                usuarioServicio.crearEmpleado(usuario, request.getIdRestaurante())
+        );
     }
 
     @Override
@@ -39,6 +44,7 @@ public class UsuarioHabdlerImpl implements IUsuarioHandler {
         Usuario usuario = usuarioRequestMapper.toUsuario(request);
         Rol rolCliente = new Rol();
         rolCliente.setId(4L);
+        rolCliente.setNombre("CLIENTE");
         usuario.setRol(rolCliente);
         return usuarioRequestMapper.toResponse(usuarioServicio.crearCliente(usuario));
     }

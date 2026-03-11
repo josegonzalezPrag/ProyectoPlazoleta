@@ -33,4 +33,6 @@ public class UsuarioRequest {
 
     @NotBlank
     private String clave;
+
+    private Long idRestaurante;
 }
