@@ -57,4 +57,29 @@ public class PedidoController {
         return ResponseEntity.ok(pedidoHandler.listarPedidos(idRestaurante, estado, pagina, tamano));
     }
 
+    @PatchMapping("/{idPedido}/asignar")
+    @PreAuthorize("hasRole('EMPLEADO')")
+    public ResponseEntity<PedidoResponse> asignarEmpleado(@PathVariable Long idPedido) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getCredentials() == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        Long idEmpleado = (Long) auth.getCredentials();
+        Long idRestaurante = restauranteEmpleadoRepositorio
+                .obtenerPorIdEmpleado(idEmpleado)
+                .orElseThrow(() -> new IllegalArgumentException("El empleado no pertenece a ningún restaurante"))
+                .getIdRestaurante();
+        return ResponseEntity.ok(pedidoHandler.asignarEmpleado(idPedido, idEmpleado,idRestaurante));
+    }
+
+    @GetMapping("/mis-pedidos")
+    @PreAuthorize("hasRole('CLIENTE')")
+    public ResponseEntity<List<PedidoResponse>> listarMisPedidos() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getCredentials() == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        Long idCliente = (Long) auth.getCredentials();
+        return ResponseEntity.ok(pedidoHandler.listarPedidosPorCliente(idCliente));
+    }
 }

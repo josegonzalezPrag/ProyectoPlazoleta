@@ -21,6 +21,7 @@ public class PedidoEntity {
     private Long idChef;
     private Long idRestaurante;
 
-    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "id_pedido")
     private List<PedidoPlatoEntity> platos;
 }

@@ -37,6 +37,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/plato/**").hasRole("PROPIETARIO")
                         .requestMatchers(HttpMethod.GET, "/plato/restaurante/**").hasRole(cliente)
                         .requestMatchers(HttpMethod.POST, "/pedido/crear").hasRole(cliente)
+                        .requestMatchers(HttpMethod.GET, "/pedido/listar").hasRole("EMPLEADO")
+                        .requestMatchers(HttpMethod.PATCH, "/pedido/*/asignar").hasRole("EMPLEADO")
+                        .requestMatchers(HttpMethod.GET, "/pedido/mis-pedidos").hasRole(cliente)
                         .requestMatchers(HttpMethod.POST, "/restaurante-empleado/asignar").permitAll()
                         .anyRequest().permitAll()
                 ).addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

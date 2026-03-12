@@ -38,4 +38,22 @@ public class PedidoUseCase implements IPedidoServicio {
     public List<Pedido> listarPedidos(Long idRestaurante, String estado, int pagina, int tamano) {
         return pedidoRepositorio.listarPedidosPorRestauranteYEstado(idRestaurante, estado, pagina, tamano);
     }
+
+    @Override
+    public Pedido asignarEmpleado(Long idPedido, Long idEmpleado, Long idRestauranteEmpleado) {
+        Pedido pedido = pedidoRepositorio.obtenerPedidoPorId(idPedido)
+                .orElseThrow(() -> new IllegalArgumentException("El pedido no existe"));
+
+        if (!pedidoRepositorio.pedidoPerteneceARestaurante(idPedido, idRestauranteEmpleado)) {
+            throw new IllegalArgumentException("El pedido no pertenece al restaurante del empleado");
+        }
+        pedido.setEstado("En_Preparacion");
+        pedido.setIdChef(idEmpleado);
+        return pedidoRepositorio.pedidoEnPreparacion(pedido);
+    }
+
+    @Override
+    public List<Pedido> listarPedidosPorCliente(Long idCliente) {
+        return pedidoRepositorio.listarPedidosPorCliente(idCliente);
+    }
 }

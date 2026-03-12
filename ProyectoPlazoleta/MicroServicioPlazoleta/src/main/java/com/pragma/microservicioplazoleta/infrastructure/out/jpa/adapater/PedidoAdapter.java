@@ -63,4 +63,26 @@ public class PedidoAdapter implements IPedidoRepositorio {
                 .toList();
     }
 
+    @Override
+    public List<Pedido> listarPedidosPorCliente(Long idCliente) {
+        return pedidoRepositorio.findByIdCliente(idCliente)
+                .stream()
+                .map(pedidoEntityMapper::toModel)
+                .toList();
+    }
+
+    @Override
+    public Pedido pedidoEnPreparacion(Pedido pedido) {
+        PedidoEntity entity = pedidoRepositorio.findById(pedido.getId())
+                .orElseThrow(() -> new IllegalArgumentException("El pedido no existe"));
+        entity.setEstado(pedido.getEstado());
+        entity.setIdChef(pedido.getIdChef());
+        return pedidoEntityMapper.toModel(pedidoRepositorio.save(entity));
+    }
+
+    @Override
+    public boolean pedidoPerteneceARestaurante(Long idPedido, Long idRestaurante) {
+        return pedidoRepositorio.existsByIdAndIdRestaurante(idPedido, idRestaurante);
+    }
+
 }

@@ -31,4 +31,17 @@ public class PedidoHandlerImp implements IPedidoHandler {
                 .map(pedidoRequestMapper::toResponse)
                 .toList();
     }
+
+    @Override
+    public PedidoResponse asignarEmpleado(Long idPedido, Long idEmpleado, Long idRestauranteEmpleado) {
+        return pedidoRequestMapper.toResponse(pedidoServicio.asignarEmpleado(idPedido, idEmpleado, idRestauranteEmpleado));
+    }
+
+    @Override
+    public List<PedidoResponse> listarPedidosPorCliente(Long idCliente) {
+        return pedidoServicio.listarPedidosPorCliente(idCliente)
+                .stream()
+                .map(pedidoRequestMapper::toResponse)
+                .toList();
+    }
 }
