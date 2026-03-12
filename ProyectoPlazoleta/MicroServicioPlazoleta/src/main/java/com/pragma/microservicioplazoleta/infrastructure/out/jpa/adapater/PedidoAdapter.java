@@ -47,4 +47,20 @@ public class PedidoAdapter implements IPedidoRepositorio {
         return idPlatos.stream()
                 .allMatch(idPlato -> platoRepositorio.existsByIdAndIdRestaurante(idPlato, idRestaurante));
     }
+
+    @Override
+    public List<Pedido> listarPedidosPorRestauranteYEstado(Long idRestaurante, String estado, int pagina, int tamano) {
+        List<PedidoEntity> entities = pedidoRepositorio.findByIdRestauranteAndEstado(idRestaurante, estado);
+
+        int inicio = pagina * tamano;
+        int fin = Math.min(inicio + tamano, entities.size());
+
+        if (inicio >= entities.size()) return List.of();
+
+        return entities.subList(inicio, fin)
+                .stream()
+                .map(pedidoEntityMapper::toModel)
+                .toList();
+    }
+
 }

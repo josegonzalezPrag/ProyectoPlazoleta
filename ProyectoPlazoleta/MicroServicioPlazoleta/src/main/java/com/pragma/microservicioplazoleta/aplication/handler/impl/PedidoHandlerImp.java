@@ -9,6 +9,8 @@ import com.pragma.microservicioplazoleta.domain.model.Pedido;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class PedidoHandlerImp implements IPedidoHandler {
@@ -20,5 +22,13 @@ public class PedidoHandlerImp implements IPedidoHandler {
         Pedido pedido = pedidoRequestMapper.toPedido(request);
         pedido.setIdCliente(idCliente);
         return pedidoRequestMapper.toResponse(pedidoServicio.crearPedido(pedido));
+    }
+
+    @Override
+    public List<PedidoResponse> listarPedidos(Long idRestaurante, String estado, int pagina, int tamano) {
+        return pedidoServicio.listarPedidos(idRestaurante, estado, pagina, tamano)
+                .stream()
+                .map(pedidoRequestMapper::toResponse)
+                .toList();
     }
 }

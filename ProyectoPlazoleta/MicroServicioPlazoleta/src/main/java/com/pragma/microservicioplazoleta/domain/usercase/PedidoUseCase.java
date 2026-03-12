@@ -33,4 +33,9 @@ public class PedidoUseCase implements IPedidoServicio {
         pedido.setFecha(LocalDateTime.now());
         return pedidoRepositorio.guardarPedido(pedido);
     }
+
+    @Override
+    public List<Pedido> listarPedidos(Long idRestaurante, String estado, int pagina, int tamano) {
+        return pedidoRepositorio.listarPedidosPorRestauranteYEstado(idRestaurante, estado, pagina, tamano);
+    }
 }

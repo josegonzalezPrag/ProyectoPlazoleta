@@ -109,7 +109,7 @@ class UsuarioUseCaseTest {
         when(iUsuarioRepositorio.obtenerUsuarioPorCorreo("carlos@gmail.com")).thenReturn(Optional.empty());
         when(passwordEncoder.encode(any())).thenReturn("claveEncriptada");
         when(iUsuarioRepositorio.guardarUsuario(any())).thenReturn(usuarioValido);
-        doNothing().when(plazoletaClient).asignarEmpleado(any()); // <-- mockear llamada a Plazoleta
+        doNothing().when(plazoletaClient).asignarEmpleado(any());
 
         Usuario resultado = usuarioUseCase.crearEmpleado(usuarioValido, 1L);
 

@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface PedidoRepositorio extends JpaRepository<PedidoEntity, Long> {
     boolean existsByIdClienteAndEstadoIn(Long idCliente, List<String> estados);
+    List<PedidoEntity> findByIdRestauranteAndEstado(Long idRestaurante, String estado);
 }

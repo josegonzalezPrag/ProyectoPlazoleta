@@ -7,6 +7,8 @@ import com.pragma.microservicioplazoleta.infrastructure.out.jpa.repository.Resta
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Component
 @RequiredArgsConstructor
 public class RestauranteEmpleadoAdapter implements IRestauranteEmpleadoRespositorio {
@@ -16,5 +18,11 @@ public class RestauranteEmpleadoAdapter implements IRestauranteEmpleadoResposito
     @Override
     public RestauranteEmpleado guardarRelacion(RestauranteEmpleado restauranteEmpleado) {
         return mapper.toModel(repositorio.save(mapper.toEntity(restauranteEmpleado)));
+    }
+
+    @Override
+    public Optional<RestauranteEmpleado> obtenerPorIdEmpleado(Long idEmpleado) {
+        return repositorio.findByIdEmpleado(idEmpleado)
+                .map(mapper::toModel);
     }
 }

@@ -10,4 +10,5 @@ public interface IPedidoRepositorio {
     Optional<Pedido> obtenerPedidoPorId(Long id);
     boolean clienteTienePedidoEnProceso(Long idCliente);
     boolean platosPerteneceARestaurante(List<Long> idPlatos, Long idRestaurante);
+    List<Pedido> listarPedidosPorRestauranteYEstado(Long idRestaurante, String estado, int pagina, int tamano);
 }
