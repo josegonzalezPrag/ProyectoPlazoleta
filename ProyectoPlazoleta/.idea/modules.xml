@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/MicroServicioPlazoleta.main.iml" filepath="$PROJECT_DIR$/.idea/modules/MicroServicioPlazoleta.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/MicroServicioUsuario.main.iml" filepath="$PROJECT_DIR$/.idea/modules/MicroServicioUsuario.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/MicroservicioMensajeria.main.iml" filepath="$PROJECT_DIR$/.idea/modules/MicroservicioMensajeria.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/ProyectoPlazoleta.iml" filepath="$PROJECT_DIR$/.idea/ProyectoPlazoleta.iml" />
     </modules>
   </component>

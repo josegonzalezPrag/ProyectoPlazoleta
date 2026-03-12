@@ -19,6 +19,22 @@
           </set>
         </option>
       </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/MicroservicioMensajeria" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/MicroservicioMensajeria" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/MicroservicioTrazabilidad" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/MicroservicioTrazabilidad" />
+          </set>
+        </option>
+      </GradleProjectSettings>
     </option>
   </component>
 </project>

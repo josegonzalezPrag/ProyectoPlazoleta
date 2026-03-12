@@ -20,6 +20,7 @@ public class SecurityConfig {
     private final JwtFilter jwtFilter;
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http)  {
+        String cliente = "CLIENTE";
         http
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session
@@ -31,10 +32,11 @@ public class SecurityConfig {
                                 "/v3/api-docs/**"
                         ).permitAll()
                         .requestMatchers(HttpMethod.POST, "/restaurante/crear").hasRole("ADMINISTRADOR")
-                        .requestMatchers(HttpMethod.GET, "/restaurante").hasRole("CLIENTE")
+                        .requestMatchers(HttpMethod.GET, "/restaurante").hasRole(cliente)
                         .requestMatchers(HttpMethod.POST, "/plato/crear").hasRole("PROPIETARIO")
                         .requestMatchers(HttpMethod.PATCH, "/plato/**").hasRole("PROPIETARIO")
-                        .requestMatchers(HttpMethod.GET, "/plato/restaurante/**").hasRole("CLIENTE")
+                        .requestMatchers(HttpMethod.GET, "/plato/restaurante/**").hasRole(cliente)
+                        .requestMatchers(HttpMethod.POST, "/pedido/crear").hasRole(cliente)
                         .requestMatchers(HttpMethod.POST, "/restaurante-empleado/asignar").permitAll()
                         .anyRequest().permitAll()
                 ).addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

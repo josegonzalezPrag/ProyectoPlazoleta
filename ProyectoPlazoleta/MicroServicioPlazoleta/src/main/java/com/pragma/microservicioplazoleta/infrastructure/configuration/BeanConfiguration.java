@@ -1,10 +1,12 @@
 package com.pragma.microservicioplazoleta.infrastructure.configuration;
 
 
+import com.pragma.microservicioplazoleta.domain.api.IPedidoServicio;
 import com.pragma.microservicioplazoleta.domain.api.IPlatoServicio;
 import com.pragma.microservicioplazoleta.domain.api.IRestauranteEmpleadoServicio;
 import com.pragma.microservicioplazoleta.domain.api.IRestauranteServicio;
 import com.pragma.microservicioplazoleta.domain.spi.*;
+import com.pragma.microservicioplazoleta.domain.usercase.PedidoUseCase;
 import com.pragma.microservicioplazoleta.domain.usercase.PlatoUseCase;
 import com.pragma.microservicioplazoleta.domain.usercase.RestauranteEmpleadoUseCase;
 import com.pragma.microservicioplazoleta.domain.usercase.RestauranteUseCase;
@@ -34,5 +36,9 @@ public class BeanConfiguration {
         return new RestauranteEmpleadoUseCase(repositorio, restauranteRepositorio, usuarioClient);
     }
 
+    @Bean
+    public IPedidoServicio pedidoServicio(IPedidoRepositorio pedidoRepositorio) {
+        return new PedidoUseCase(pedidoRepositorio);
+    }
 
 }
