@@ -21,8 +21,11 @@ class PedidoUseCaseTest {
     @Mock
     private IPedidoRepositorio pedidoRepositorio;
 
+
     @InjectMocks
     private PedidoUseCase pedidoUseCase;
+
+    private Pedido pedidoPendiente;
 
     private Pedido pedidoValido;
 
@@ -37,6 +40,13 @@ class PedidoUseCaseTest {
                 .idCliente(1L)
                 .idRestaurante(1L)
                 .platos(platos)
+                .build();
+
+        pedidoPendiente = Pedido.builder()
+                .id(1L)
+                .idCliente(1L)
+                .idRestaurante(1L)
+                .estado("Pendiente")
                 .build();
     }
 
@@ -91,5 +101,39 @@ class PedidoUseCaseTest {
 
         assertEquals("Pendiente", pedidoValido.getEstado());
         assertNotNull(pedidoValido.getFecha());
+    }
+
+    @Test
+    void deberiaListarPedidosPorEstadoExitosamente() {
+        when(pedidoRepositorio.listarPedidosPorRestauranteYEstado(1L, "Pendiente", 0, 10))
+                .thenReturn(List.of(pedidoPendiente));
+
+        List<Pedido> resultado = pedidoUseCase.listarPedidos(1L, "Pendiente", 0, 10);
+
+        assertEquals(1, resultado.size());
+        assertEquals("Pendiente", resultado.getFirst().getEstado());
+        verify(pedidoRepositorio, times(1)).listarPedidosPorRestauranteYEstado(1L, "Pendiente", 0, 10);
+    }
+
+    @Test
+    void deberiaRetornarSoloPedidosDelRestauranteDelEmpleado() {
+        when(pedidoRepositorio.listarPedidosPorRestauranteYEstado(1L, "Pendiente", 0, 10))
+                .thenReturn(List.of(pedidoPendiente));
+
+        List<Pedido> resultado = pedidoUseCase.listarPedidos(1L, "Pendiente", 0, 10);
+
+        resultado.forEach(p -> assertEquals(1L, p.getIdRestaurante()));
+        verify(pedidoRepositorio, times(1)).listarPedidosPorRestauranteYEstado(1L, "Pendiente", 0, 10);
+    }
+
+    @Test
+    void deberiaRetornarListaVaciaCuandoNoHayPedidosConEseEstado() {
+        when(pedidoRepositorio.listarPedidosPorRestauranteYEstado(1L, "En_Preparacion", 0, 10))
+                .thenReturn(List.of());
+
+        List<Pedido> resultado = pedidoUseCase.listarPedidos(1L, "En_Preparacion", 0, 10);
+
+        assertEquals(0, resultado.size());
+        verify(pedidoRepositorio, times(1)).listarPedidosPorRestauranteYEstado(1L, "En_Preparacion", 0, 10);
     }
 }
