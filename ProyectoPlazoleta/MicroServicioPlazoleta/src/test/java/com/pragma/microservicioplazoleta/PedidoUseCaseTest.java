@@ -36,6 +36,7 @@ class PedidoUseCaseTest {
 
     private Pedido pedidoValido;
     private Pedido pedidoEnPreparacion;
+    private Pedido pedidoListo;
     private RestauranteEmpleado restauranteEmpleado;
 
     @BeforeEach
@@ -57,6 +58,15 @@ class PedidoUseCaseTest {
                 .idRestaurante(1L)
                 .idChef(2L)
                 .estado(PeidoConstantes.ESTADO_EN_PREPARACION)
+                .build();
+
+        pedidoListo = Pedido.builder()
+                .id(1L)
+                .idCliente(1L)
+                .idRestaurante(1L)
+                .idChef(2L)
+                .estado(PeidoConstantes.ESTADO_LISTO)
+                .codigoEntrega("1234")
                 .build();
 
         restauranteEmpleado = RestauranteEmpleado.builder()
@@ -144,6 +154,45 @@ class PedidoUseCaseTest {
 
         assertThrows(SinPermisosException.class,
                 () -> pedidoUseCase.asignarEmpleado(1L, 2L));
+
+        verify(pedidoRepositorio, never()).actualizarPedido(any());
+    }
+
+    @Test
+    void deberiaEntregarPedidoExitosamente() {
+        when(pedidoRepositorio.obtenerPedidoPorId(1L)).thenReturn(Optional.of(pedidoListo));
+        when(restauranteEmpleadoRepositorio.obtenerPorIdEmpleado(2L)).thenReturn(Optional.of(restauranteEmpleado));
+        when(pedidoRepositorio.pedidoPerteneceARestaurante(1L, 1L)).thenReturn(true);
+        when(pedidoRepositorio.actualizarPedido(any())).thenReturn(pedidoListo);
+
+        Pedido resultado = pedidoUseCase.entregarPedido(1L, "1234", 2L);
+
+        assertNotNull(resultado);
+        assertEquals(PeidoConstantes.ESTADO_ENTREGADO, pedidoListo.getEstado());
+        verify(pedidoRepositorio, times(1)).actualizarPedido(any());
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoPedidoNoEstaListo() {
+        pedidoListo.setEstado(PeidoConstantes.ESTADO_EN_PREPARACION);
+        when(pedidoRepositorio.obtenerPedidoPorId(1L)).thenReturn(Optional.of(pedidoListo));
+        when(restauranteEmpleadoRepositorio.obtenerPorIdEmpleado(2L)).thenReturn(Optional.of(restauranteEmpleado));
+        when(pedidoRepositorio.pedidoPerteneceARestaurante(1L, 1L)).thenReturn(true);
+
+        assertThrows(DatoInvalidoException.class,
+                () -> pedidoUseCase.entregarPedido(1L, "1234", 2L));
+
+        verify(pedidoRepositorio, never()).actualizarPedido(any());
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoCodigoEsIncorrecto() {
+        when(pedidoRepositorio.obtenerPedidoPorId(1L)).thenReturn(Optional.of(pedidoListo));
+        when(restauranteEmpleadoRepositorio.obtenerPorIdEmpleado(2L)).thenReturn(Optional.of(restauranteEmpleado));
+        when(pedidoRepositorio.pedidoPerteneceARestaurante(1L, 1L)).thenReturn(true);
+
+        assertThrows(DatoInvalidoException.class,
+                () -> pedidoUseCase.entregarPedido(1L, "9999", 2L));
 
         verify(pedidoRepositorio, never()).actualizarPedido(any());
     }

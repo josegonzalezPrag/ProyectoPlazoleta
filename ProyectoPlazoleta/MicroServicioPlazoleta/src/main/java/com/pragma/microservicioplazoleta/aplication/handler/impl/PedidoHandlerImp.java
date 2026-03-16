@@ -49,4 +49,9 @@ public class PedidoHandlerImp implements IPedidoHandler {
     public PedidoResponse marcarComoListo(Long idPedido, Long idChef) {
         return pedidoRequestMapper.toResponse(pedidoServicio.marcarComoListo(idPedido, idChef));
     }
+
+    @Override
+    public PedidoResponse entregarPedido(Long idPedido, String codigoEntrega, Long idEmpleado) {
+        return pedidoRequestMapper.toResponse(pedidoServicio.entregarPedido(idPedido, codigoEntrega, idEmpleado));
+    }
 }

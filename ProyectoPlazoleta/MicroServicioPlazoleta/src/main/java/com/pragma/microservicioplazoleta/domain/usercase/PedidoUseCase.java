@@ -103,4 +103,26 @@ public class PedidoUseCase implements IPedidoServicio {
         pedido.setCodigoEntrega(codigo);
         return pedidoRepositorio.actualizarPedido(pedido);
     }
+
+    @Override
+    public Pedido entregarPedido(Long idPedido, String codigoEntrega,Long idEmpleado) {
+        Pedido pedido = obtenerPedidoOLanzarExcepcion(idPedido);
+
+        Long idRestaurante = restauranteEmpleadoRepositorio.obtenerPorIdEmpleado(idEmpleado)
+                .orElseThrow(() -> new DatoInvalidoException(PeidoConstantes.EMPLEADO_SIN_RESTAURANTE))
+                .getIdRestaurante();
+
+        if (!pedidoRepositorio.pedidoPerteneceARestaurante(idPedido, idRestaurante))
+            throw new SinPermisosException(PeidoConstantes.PEDIDO_RESTAURANTE_INVALIDO);
+
+        if (!PeidoConstantes.ESTADO_LISTO.equals(pedido.getEstado()))
+            throw new DatoInvalidoException(PeidoConstantes.PEDIDO_NO_ESTA_LISTO);
+
+        if (!pedido.getCodigoEntrega().equals(codigoEntrega))
+            throw new DatoInvalidoException(PeidoConstantes.CODIGO_INVALIDO);
+
+        pedido.setEstado(PeidoConstantes.ESTADO_ENTREGADO);
+        return pedidoRepositorio.actualizarPedido(pedido);
+    }
+
 }

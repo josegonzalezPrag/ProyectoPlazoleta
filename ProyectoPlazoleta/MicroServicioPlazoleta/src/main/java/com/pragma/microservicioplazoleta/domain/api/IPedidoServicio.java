@@ -8,6 +8,7 @@ public interface IPedidoServicio {
     Pedido crearPedido(Pedido pedido);
     Pedido marcarComoListo(Long idPedido, Long idChef);
     Pedido asignarEmpleado(Long idPedido, Long idEmpleado);
+    Pedido entregarPedido(Long idPedido, String codigoEntrega, Long idEmpleado);
     List<Pedido> listarPedidos(Long idEmpleado, String estado, int pagina, int tamano);
     List<Pedido> listarPedidosPorCliente(Long idCliente);
 }

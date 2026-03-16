@@ -3,6 +3,9 @@ package com.pragma.microservicioplazoleta.domain.usercase.constantes;
 public class PeidoConstantes {
     private PeidoConstantes(){}
 
+    public static final String ESTADO_ENTREGADO = "Entregado";
+    public static final String CODIGO_INVALIDO = "El código de entrega es incorrecto";
+    public static final String PEDIDO_NO_ESTA_LISTO = "El pedido debe estar en estado Listo para ser entregado";
     public static final String PEDIDO_NO_EXISTE = "El pedido no existe";
     public static final String CLIENTE_CON_PEDIDO = "El cliente ya tiene un pedido en proceso";
     public static final String PLATOS_RESTAURANTE_INVALIDO = "Todos los platos deben pertenecer al mismo restaurante";

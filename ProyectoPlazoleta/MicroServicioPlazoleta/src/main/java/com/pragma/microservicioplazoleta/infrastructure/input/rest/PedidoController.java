@@ -1,5 +1,6 @@
 package com.pragma.microservicioplazoleta.infrastructure.input.rest;
 
+import com.pragma.microservicioplazoleta.aplication.dto.request.EntregarPedidoRequest;
 import com.pragma.microservicioplazoleta.aplication.dto.request.PedidoRequest;
 import com.pragma.microservicioplazoleta.aplication.dto.response.PedidoResponse;
 import com.pragma.microservicioplazoleta.aplication.handler.IPedidoHandler;
@@ -126,5 +127,28 @@ public class PedidoController {
         }
         Long idChef = (Long) auth.getCredentials();
         return ResponseEntity.ok(pedidoHandler.marcarComoListo(idPedido, idChef));
+    }
+
+    @Operation(
+            summary = "Entregar pedido",
+            description = "Cambia el estado del pedido de Listo a Entregado validando el código de entrega. Cualquier empleado del restaurante puede ejecutarlo.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Pedido entregado exitosamente"),
+                    @ApiResponse(responseCode = "400", description = "Código de entrega incorrecto o pedido no está en estado Listo"),
+                    @ApiResponse(responseCode = "403", description = "El empleado no pertenece al restaurante del pedido"),
+                    @ApiResponse(responseCode = "404", description = "Pedido no encontrado")
+            }
+    )
+    @PatchMapping("/{idPedido}/entregar")
+    @PreAuthorize("hasRole('EMPLEADO')")
+    public ResponseEntity<PedidoResponse> entregarPedido(
+            @PathVariable Long idPedido,
+            @Valid @RequestBody EntregarPedidoRequest request) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getCredentials() == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        Long idEmpleado = (Long) auth.getCredentials();
+        return ResponseEntity.ok(pedidoHandler.entregarPedido(idPedido, request.getCodigoEntrega(), idEmpleado));
     }
 }

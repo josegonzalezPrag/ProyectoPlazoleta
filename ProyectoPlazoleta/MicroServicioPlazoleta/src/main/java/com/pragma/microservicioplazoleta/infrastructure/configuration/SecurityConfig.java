@@ -22,6 +22,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http)  {
         String cliente = "CLIENTE";
         String empleado = "EMPLEADO";
+        String propietario = "PROPIETARIO";
+        String administradot = "ADMINISTRATOR";
         http
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session
@@ -32,10 +34,10 @@ public class SecurityConfig {
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**"
                         ).permitAll()
-                        .requestMatchers(HttpMethod.POST, "/restaurante/crear").hasRole("ADMINISTRADOR")
+                        .requestMatchers(HttpMethod.POST, "/restaurante/crear").hasRole(administradot)
                         .requestMatchers(HttpMethod.GET, "/restaurante").hasRole(cliente)
-                        .requestMatchers(HttpMethod.POST, "/plato/crear").hasRole("PROPIETARIO")
-                        .requestMatchers(HttpMethod.PATCH, "/plato/**").hasRole("PROPIETARIO")
+                        .requestMatchers(HttpMethod.POST, "/plato/crear").hasRole(propietario)
+                        .requestMatchers(HttpMethod.PATCH, "/plato/**").hasRole(propietario)
                         .requestMatchers(HttpMethod.GET, "/plato/restaurante/**").hasRole(cliente)
                         .requestMatchers(HttpMethod.POST, "/pedido/crear").hasRole(cliente)
                         .requestMatchers(HttpMethod.GET, "/pedido/listar").hasRole(empleado)
@@ -43,6 +45,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/pedido/mis-pedidos").hasRole(cliente)
                         .requestMatchers(HttpMethod.POST, "/restaurante-empleado/asignar").permitAll()
                         .requestMatchers(HttpMethod.PATCH, "/pedido/*/listo").hasRole(empleado)
+                        .requestMatchers(HttpMethod.PATCH, "/pedido/*/entregar").hasRole(empleado)
                         .anyRequest().permitAll()
                 ).addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
