@@ -25,16 +25,16 @@ public class PedidoHandlerImp implements IPedidoHandler {
     }
 
     @Override
-    public List<PedidoResponse> listarPedidos(Long idRestaurante, String estado, int pagina, int tamano) {
-        return pedidoServicio.listarPedidos(idRestaurante, estado, pagina, tamano)
+    public List<PedidoResponse> listarPedidos(Long idEmpleado, String estado, int pagina, int tamano) {
+        return pedidoServicio.listarPedidos(idEmpleado, estado, pagina, tamano)
                 .stream()
                 .map(pedidoRequestMapper::toResponse)
                 .toList();
     }
 
     @Override
-    public PedidoResponse asignarEmpleado(Long idPedido, Long idEmpleado, Long idRestauranteEmpleado) {
-        return pedidoRequestMapper.toResponse(pedidoServicio.asignarEmpleado(idPedido, idEmpleado, idRestauranteEmpleado));
+    public PedidoResponse asignarEmpleado(Long idPedido, Long idEmpleado) {
+        return pedidoRequestMapper.toResponse(pedidoServicio.asignarEmpleado(idPedido, idEmpleado));
     }
 
     @Override
@@ -43,5 +43,10 @@ public class PedidoHandlerImp implements IPedidoHandler {
                 .stream()
                 .map(pedidoRequestMapper::toResponse)
                 .toList();
+    }
+
+    @Override
+    public PedidoResponse marcarComoListo(Long idPedido, Long idChef) {
+        return pedidoRequestMapper.toResponse(pedidoServicio.marcarComoListo(idPedido, idChef));
     }
 }

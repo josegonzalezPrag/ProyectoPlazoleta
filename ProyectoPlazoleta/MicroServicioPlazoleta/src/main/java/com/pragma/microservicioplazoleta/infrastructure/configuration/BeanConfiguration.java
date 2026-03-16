@@ -37,8 +37,12 @@ public class BeanConfiguration {
     }
 
     @Bean
-    public IPedidoServicio pedidoServicio(IPedidoRepositorio pedidoRepositorio) {
-        return new PedidoUseCase(pedidoRepositorio);
+    public IPedidoServicio pedidoServicio(IPedidoRepositorio pedidoRepositorio,
+                                          IUsuarioClient usuarioClient,
+                                          IRestauranteEmpleadoRespositorio restauranteEmpleadoRepositorio,
+                                          IMensajeriClientt mensajeriaClient) {
+        return new PedidoUseCase(pedidoRepositorio, usuarioClient, restauranteEmpleadoRepositorio, mensajeriaClient);
     }
+
 
 }

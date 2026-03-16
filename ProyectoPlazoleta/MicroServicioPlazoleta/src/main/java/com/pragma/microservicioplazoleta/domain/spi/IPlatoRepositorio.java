@@ -9,4 +9,5 @@ public interface IPlatoRepositorio {
     Plato guardarPlato(Plato plato);
     Optional<Plato> obtenerPlatoPorId(Long id);
     List<Plato> listarPlatosPorRestaurante(Long idRestaurante, Long idCategoria, int pagina, int tamano);
+    boolean categoriaExiste(Long idCategoria);
 }

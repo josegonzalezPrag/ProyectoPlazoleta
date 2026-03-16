@@ -6,6 +6,10 @@ import com.pragma.microservicioplazoleta.domain.model.Restaurante;
 import com.pragma.microservicioplazoleta.domain.model.Usuario;
 import com.pragma.microservicioplazoleta.domain.spi.IRestauranteRepositorio;
 import com.pragma.microservicioplazoleta.domain.spi.IUsuarioClient;
+import com.pragma.microservicioplazoleta.domain.usercase.constantes.RestauranteConstantes;
+import com.pragma.microservicioplazoleta.infrastructure.exceptionhandler.exceptions.DatoInvalidoException;
+import com.pragma.microservicioplazoleta.infrastructure.exceptionhandler.exceptions.SinPermisosException;
+import com.pragma.microservicioplazoleta.infrastructure.exceptionhandler.exceptions.UsuarioNoEncontradoException;
 
 import java.util.List;
 
@@ -24,13 +28,13 @@ public class RestauranteUseCase implements IRestauranteServicio {
         Usuario propietario = usuarioClient.obtenerUsuarioPorId(restaurante.getIdPropietario());
 
         if (propietario == null) {
-            throw new IllegalArgumentException("El propietario no existe");
+            throw new UsuarioNoEncontradoException(RestauranteConstantes.PROPIETARIO_NO_EXISTE);
         }
-        if (!restaurante.getTelefono().matches("^\\+?\\d{1,12}$")) {
-            throw new IllegalArgumentException("El teléfono debe tener máximo 13 caracteres");
+        if (!restaurante.getTelefono().matches(RestauranteConstantes.REGEX_TELEFONO)) {
+            throw new DatoInvalidoException(RestauranteConstantes.TELEFONO_INVALIDO);
         }
-        if (!propietario.getRolNombre().equals("PROPIETARIO")) {
-            throw new IllegalArgumentException("El usuario no tiene rol de Propietario");
+        if (!propietario.getRolNombre().equals(RestauranteConstantes.ROL_PROPIETARIO)) {
+            throw new SinPermisosException(RestauranteConstantes.ROL_NO_PROPIETARIO);
         }
         return restauranteRepositorio.guardarRestaurante(restaurante);
     }

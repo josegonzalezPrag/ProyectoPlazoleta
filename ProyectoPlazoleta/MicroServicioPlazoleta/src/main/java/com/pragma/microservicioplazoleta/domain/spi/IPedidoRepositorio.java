@@ -7,11 +7,12 @@ import java.util.Optional;
 
 public interface IPedidoRepositorio {
     Pedido guardarPedido(Pedido pedido);
-    Pedido pedidoEnPreparacion(Pedido pedido);
+    Pedido actualizarPedido(Pedido pedido);
     Optional<Pedido> obtenerPedidoPorId(Long id);
     boolean clienteTienePedidoEnProceso(Long idCliente);
     boolean platosPerteneceARestaurante(List<Long> idPlatos, Long idRestaurante);
     boolean pedidoPerteneceARestaurante(Long idPedido, Long idRestaurante);
     List<Pedido> listarPedidosPorRestauranteYEstado(Long idRestaurante, String estado, int pagina, int tamano);
     List<Pedido> listarPedidosPorCliente(Long idCliente);
+
 }

@@ -6,6 +6,7 @@ import com.pragma.microserviciousuario.domain.model.Usuario;
 import com.pragma.microserviciousuario.domain.spi.IUsuarioRepositorio;
 import com.pragma.microserviciousuario.infrastructure.configuration.AuthService;
 import com.pragma.microserviciousuario.infrastructure.configuration.JwTConfig;
+import com.pragma.microserviciousuario.infrastructure.exceptionhandler.exceptions.CredencialesInvalidoException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -77,12 +78,8 @@ class AuthServiceTest {
         when(iUsuarioRepositorio.obtenerUsuarioPorCorreo("admin@plazoleta.com"))
                 .thenReturn(Optional.empty());
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> authService.login(loginRequest)
-        );
-
-        assertEquals("Credenciales incorrectas", exception.getMessage());
+        assertThrows(CredencialesInvalidoException.class,
+                () -> authService.login(loginRequest));
     }
 
     @Test
@@ -91,11 +88,7 @@ class AuthServiceTest {
                 .thenReturn(Optional.of(adminValido));
         when(passwordEncoder.matches("clave1234", adminValido.getClave())).thenReturn(false);
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> authService.login(loginRequest)
-        );
-
-        assertEquals("Credenciales incorrectas", exception.getMessage());
+        assertThrows(CredencialesInvalidoException.class,
+                () -> authService.login(loginRequest));
     }
 }

@@ -13,4 +13,5 @@ public class Usuario {
     private Long id;
     private String correo;
     private String rolNombre;
+    private String celular;
 }

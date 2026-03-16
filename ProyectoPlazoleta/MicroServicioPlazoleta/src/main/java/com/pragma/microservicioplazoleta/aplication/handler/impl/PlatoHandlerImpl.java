@@ -9,7 +9,9 @@ import com.pragma.microservicioplazoleta.aplication.dto.response.PlatoResponse;
 import com.pragma.microservicioplazoleta.aplication.handler.IPlatoHandler;
 import com.pragma.microservicioplazoleta.aplication.mapper.PlatoRequestMapper;
 import com.pragma.microservicioplazoleta.domain.api.IPlatoServicio;
+import com.pragma.microservicioplazoleta.domain.model.Plato;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,8 +24,8 @@ public class PlatoHandlerImpl implements IPlatoHandler {
 
     @Override
     public PlatoResponse crearPlato(PlatoRequest request) {
-        var plato = platoRequestMapper.toPlato(request);
-        var guardado = platoServicio.crearPlato(plato);
+        Plato plato = platoRequestMapper.toPlato(request);
+        Plato guardado = platoServicio.crearPlato(plato);
         PlatoResponse response = platoRequestMapper.toResponse(guardado);
 
         if (guardado.getCategoria() != null) {
@@ -38,13 +40,13 @@ public class PlatoHandlerImpl implements IPlatoHandler {
 
     @Override
     public PlatoResponse actualizarPlato(Long id, PlatoUptadeRequest request) {
-        var actualizado = platoServicio.actualizarPlato(id, request.getPrecio(), request.getDescripcion());
+        Plato actualizado = platoServicio.actualizarPlato(id, request.getPrecio(), request.getDescripcion());
         return platoRequestMapper.toResponse(actualizado);
     }
 
     @Override
-    public PlatoResponse cambiarEstadoPlato(Long id, PlatoEstadoRequest request, Long idPropietario) {
-        var actualizado = platoServicio.cambiarEstadoPlato(id, request.getActivo(), idPropietario);
+    public PlatoResponse cambiarEstadoPlato(Long id, @NonNull PlatoEstadoRequest request, Long idPropietario) {
+        Plato actualizado = platoServicio.cambiarEstadoPlato(id, request.getActivo(), idPropietario);
         return platoRequestMapper.toResponse(actualizado);
     }
 

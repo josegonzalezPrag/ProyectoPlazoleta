@@ -4,6 +4,7 @@ import com.pragma.microserviciousuario.aplication.dto.request.LoginRequest;
 import com.pragma.microserviciousuario.aplication.dto.response.LoginResponse;
 import com.pragma.microserviciousuario.domain.model.Usuario;
 import com.pragma.microserviciousuario.domain.spi.IUsuarioRepositorio;
+import com.pragma.microserviciousuario.infrastructure.exceptionhandler.exceptions.CredencialesInvalidoException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,13 +19,13 @@ public class AuthService {
 
     public LoginResponse login(LoginRequest request) {
         Usuario usuario = iUsuarioRepositorio.obtenerUsuarioPorCorreo(request.getCorreo())
-                .orElseThrow(() -> new IllegalArgumentException("Credenciales incorrectas"));
+                .orElseThrow(() -> new CredencialesInvalidoException("Credenciales incorrectas"));
 
         if (!passwordEncoder.matches(request.getClave(), usuario.getClave())) {
-            throw new IllegalArgumentException("Credenciales incorrectas");
+            throw new CredencialesInvalidoException("Credenciales incorrectas");
         }
 
-        String token = jwtConfig.generarToken(usuario.getCorreo(), usuario.getRol().getNombre(),usuario.getId());
+        String token = jwtConfig.generarToken(usuario.getCorreo(), usuario.getRol().getNombre(), usuario.getId());
         return new LoginResponse(token);
     }
 }

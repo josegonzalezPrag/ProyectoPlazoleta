@@ -6,6 +6,7 @@ import com.pragma.microservicioplazoleta.aplication.dto.response.RestauranteResp
 import com.pragma.microservicioplazoleta.aplication.handler.IRestauranteHandler;
 import com.pragma.microservicioplazoleta.aplication.mapper.RestaurantRequestMapper;
 import com.pragma.microservicioplazoleta.domain.api.IRestauranteServicio;
+import com.pragma.microservicioplazoleta.domain.model.Restaurante;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,8 +21,8 @@ public class RestauranteHandlerImpl implements IRestauranteHandler {
 
     @Override
     public RestauranteResponse crearRestaurante(RestauranteRequest request) {
-        var restaurante = restauranteRequestMapper.toRestaurante(request);
-        var guardado = restauranteServicio.crearRestaurante(restaurante);
+        Restaurante restaurante = restauranteRequestMapper.toRestaurante(request);
+        Restaurante guardado = restauranteServicio.crearRestaurante(restaurante);
         return restauranteRequestMapper.toResponse(guardado);
     }
 

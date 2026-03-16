@@ -1,11 +1,14 @@
 package com.pragma.microservicioplazoleta;
 
 import com.pragma.microservicioplazoleta.domain.model.Restaurante;
-import com.pragma.microservicioplazoleta.domain.model.Rol;
 import com.pragma.microservicioplazoleta.domain.model.Usuario;
 import com.pragma.microservicioplazoleta.domain.spi.IRestauranteRepositorio;
 import com.pragma.microservicioplazoleta.domain.spi.IUsuarioClient;
 import com.pragma.microservicioplazoleta.domain.usercase.RestauranteUseCase;
+import com.pragma.microservicioplazoleta.domain.usercase.constantes.RestauranteConstantes;
+import com.pragma.microservicioplazoleta.infrastructure.exceptionhandler.exceptions.DatoInvalidoException;
+import com.pragma.microservicioplazoleta.infrastructure.exceptionhandler.exceptions.SinPermisosException;
+import com.pragma.microservicioplazoleta.infrastructure.exceptionhandler.exceptions.UsuarioNoEncontradoException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class RestaurantTest {
+class RestaurantUseCaseTest {
 
     @Mock
     private IRestauranteRepositorio iRestauranteRepositorio;
@@ -32,9 +35,6 @@ class RestaurantTest {
 
     @BeforeEach
     void setUp() {
-        Rol rolPropietario = new Rol();
-        rolPropietario.setNombre("PROPIETARIO");
-
         restauranteValido = Restaurante.builder()
                 .nombre("El Ranchito")
                 .nit(900123456)
@@ -46,7 +46,7 @@ class RestaurantTest {
 
         propietarioValido = new Usuario();
         propietarioValido.setId(2L);
-        propietarioValido.setRolNombre("PROPIETARIO");
+        propietarioValido.setRolNombre(RestauranteConstantes.ROL_PROPIETARIO);
     }
 
     @Test
@@ -64,12 +64,9 @@ class RestaurantTest {
     void deberiaLanzarExcepcionCuandoPropietarioNoExiste() {
         when(iUsuarioClient.obtenerUsuarioPorId(2L)).thenReturn(null);
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> restauranteUseCase.crearRestaurante(restauranteValido)
-        );
+        assertThrows(UsuarioNoEncontradoException.class,
+                () -> restauranteUseCase.crearRestaurante(restauranteValido));
 
-        assertEquals("El propietario no existe", exception.getMessage());
         verify(iRestauranteRepositorio, never()).guardarRestaurante(any());
     }
 
@@ -78,27 +75,20 @@ class RestaurantTest {
         propietarioValido.setRolNombre("ADMINISTRADOR");
         when(iUsuarioClient.obtenerUsuarioPorId(2L)).thenReturn(propietarioValido);
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> restauranteUseCase.crearRestaurante(restauranteValido)
-        );
+        assertThrows(SinPermisosException.class,
+                () -> restauranteUseCase.crearRestaurante(restauranteValido));
 
-        assertEquals("El usuario no tiene rol de Propietario", exception.getMessage());
         verify(iRestauranteRepositorio, never()).guardarRestaurante(any());
     }
 
     @Test
-    void deberiaLanzarExcepcionCuandoTelefonoExcede13Caracteres() {
-        propietarioValido.setRolNombre("PROPIETARIO");
-        when(iUsuarioClient.obtenerUsuarioPorId(2L)).thenReturn(propietarioValido);
+    void deberiaLanzarExcepcionCuandoTelefonoEsInvalido() {
         restauranteValido.setTelefono("+5730156789012345");
+        when(iUsuarioClient.obtenerUsuarioPorId(2L)).thenReturn(propietarioValido);
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> restauranteUseCase.crearRestaurante(restauranteValido)
-        );
+        assertThrows(DatoInvalidoException.class,
+                () -> restauranteUseCase.crearRestaurante(restauranteValido));
 
-        assertEquals("El teléfono debe tener máximo 13 caracteres", exception.getMessage());
         verify(iRestauranteRepositorio, never()).guardarRestaurante(any());
     }
 }

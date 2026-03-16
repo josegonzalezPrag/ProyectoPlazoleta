@@ -3,8 +3,14 @@ package com.pragma.microserviciousuario.domain.usercase;
 
 import com.pragma.microserviciousuario.aplication.dto.request.RestauranteEmpleadoRequest;
 import com.pragma.microserviciousuario.domain.api.IUsuarioServicio;
+import com.pragma.microserviciousuario.domain.model.Rol;
 import com.pragma.microserviciousuario.domain.model.Usuario;
 import com.pragma.microserviciousuario.domain.spi.IUsuarioRepositorio;
+import com.pragma.microserviciousuario.domain.usercase.constants.UsuarioConstantes;
+import com.pragma.microserviciousuario.infrastructure.exceptionhandler.exceptions.DatoInvalidoException;
+import com.pragma.microserviciousuario.infrastructure.exceptionhandler.exceptions.UsuarioMenordeEdadException;
+import com.pragma.microserviciousuario.infrastructure.exceptionhandler.exceptions.UsuarioNoEncontradoException;
+import com.pragma.microserviciousuario.infrastructure.exceptionhandler.exceptions.UsuarioYaExisteException;
 import com.pragma.microserviciousuario.infrastructure.out.feign.IPlazoletaClient;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -22,17 +28,43 @@ public class UsuarioUseCase implements IUsuarioServicio {
         this.plazoletaClient = plazoletaClient;
     }
 
+    private void validarDatosBasicos(Usuario usuario) {
+        if (usuario.getFechaNacimiento() == null ||
+                Period.between(usuario.getFechaNacimiento(), LocalDate.now()).getYears() < 18) {
+            throw new UsuarioMenordeEdadException(UsuarioConstantes.USUARIO_MENOR_DE_EDAD);
+        }
+        if (usuario.getCelular() == null || usuario.getCelular().length() > 13) {
+            throw new DatoInvalidoException(UsuarioConstantes.CELULAR_INVALIDO);
+        }
+        if (usuario.getCorreo() == null || !usuario.getCorreo().matches(UsuarioConstantes.REGEX_CORREO)) {
+            throw new DatoInvalidoException(UsuarioConstantes.CORREO_INVALIDO);
+        }
+        if (usuarioRepository.obtenerUsuarioPorCorreo(usuario.getCorreo()).isPresent()) {
+            throw new UsuarioYaExisteException(UsuarioConstantes.CORREO_YA_EXISTE);
+        }
+        if (!usuarioRepository.rolExiste(usuario.getRol().getId())) {
+            throw new DatoInvalidoException(UsuarioConstantes.ROL_NO_ENCONTRADO);
+        }
+    }
+
+    @Override
+    public Usuario crearCliente(Usuario usuario) {
+        Rol rol = new Rol();
+        rol.setId(UsuarioConstantes.ROL_ID_CLIENTE);
+        rol.setNombre(UsuarioConstantes.ROL_CLIENTE);
+        usuario.setRol(rol);
+        validarDatosBasicos(usuario);
+        usuario.setClave(passwordEncoder.encode(usuario.getClave()));
+        return usuarioRepository.guardarUsuario(usuario);
+    }
+
     @Override
     public Usuario crearPropietario(Usuario usuario) {
-        if (!esMayorDeEdad(usuario.getFechaNacimiento())) {
-            throw new IllegalArgumentException("El usuario debe ser mayor de edad");
-        }
-        if (!celularValido(usuario.getCelular())) {
-            throw new IllegalArgumentException("El celular debe tener máximo 13 caracteres");
-        }
-        if (!correoValido(usuario.getCorreo())) {
-            throw new IllegalArgumentException("El correo no es válido");
-        }
+        Rol rol = new Rol();
+        rol.setId(UsuarioConstantes.ROL_ID_PROPIETARIO);
+        rol.setNombre(UsuarioConstantes.ROL_PROPIETARIO);
+        usuario.setRol(rol);
+        validarDatosBasicos(usuario);
         usuario.setClave(passwordEncoder.encode(usuario.getClave()));
         return usuarioRepository.guardarUsuario(usuario);
     }
@@ -40,23 +72,16 @@ public class UsuarioUseCase implements IUsuarioServicio {
     @Override
     public Usuario obetenerUsuario(Long id) {
         return usuarioRepository.obetenerUsuario(id)
-                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+                .orElseThrow(() -> new UsuarioNoEncontradoException(UsuarioConstantes.USUARIO_NO_ENCONTRADO));
     }
 
     @Override
     public Usuario crearEmpleado(Usuario usuario, Long idRestaurante) {
-        if (!esMayorDeEdad(usuario.getFechaNacimiento())) {
-            throw new IllegalArgumentException("El usuario debe ser mayor de edad");
-        }
-        if (!celularValido(usuario.getCelular())) {
-            throw new IllegalArgumentException("El celular debe tener máximo 13 caracteres");
-        }
-        if (!correoValido(usuario.getCorreo())) {
-            throw new IllegalArgumentException("El correo no es válido");
-        }
-        if (usuarioRepository.obtenerUsuarioPorCorreo(usuario.getCorreo()).isPresent()) {
-            throw new IllegalArgumentException("Ya existe un usuario con ese correo");
-        }
+        Rol rol = new Rol();
+        rol.setId(UsuarioConstantes.ROL_ID_EMPLEADO);
+        rol.setNombre(UsuarioConstantes.ROL_EMPLEADO);
+        usuario.setRol(rol);
+        validarDatosBasicos(usuario);
         usuario.setClave(passwordEncoder.encode(usuario.getClave()));
         Usuario guardado = usuarioRepository.guardarUsuario(usuario);
 
@@ -68,31 +93,4 @@ public class UsuarioUseCase implements IUsuarioServicio {
         return guardado;
     }
 
-    @Override
-    public Usuario crearCliente(Usuario usuario) {
-        if (!celularValido(usuario.getCelular())) {
-            throw new IllegalArgumentException("El celular debe tener máximo 13 caracteres");
-        }
-        if (!correoValido(usuario.getCorreo())) {
-            throw new IllegalArgumentException("El correo no es válido");
-        }
-        if (usuarioRepository.obtenerUsuarioPorCorreo(usuario.getCorreo()).isPresent()) {
-            throw new IllegalArgumentException("Ya existe un usuario con ese correo");
-        }
-        usuario.setClave(passwordEncoder.encode(usuario.getClave()));
-        return usuarioRepository.guardarUsuario(usuario);
-    }
-
-
-    private boolean esMayorDeEdad(LocalDate fechaNacimiento) {
-        return Period.between(fechaNacimiento, LocalDate.now()).getYears() >= 18;
-    }
-
-    private boolean celularValido(String celular) {
-        return celular.matches("^\\+?\\d{1,12}$");
-    }
-
-    private boolean correoValido(String correo) {
-        return correo.matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$");
-    }
 }

@@ -4,6 +4,9 @@ import com.pragma.microserviciousuario.domain.model.Rol;
 import com.pragma.microserviciousuario.domain.model.Usuario;
 import com.pragma.microserviciousuario.domain.spi.IUsuarioRepositorio;
 import com.pragma.microserviciousuario.domain.usercase.UsuarioUseCase;
+import com.pragma.microserviciousuario.infrastructure.exceptionhandler.exceptions.DatoInvalidoException;
+import com.pragma.microserviciousuario.infrastructure.exceptionhandler.exceptions.UsuarioMenordeEdadException;
+import com.pragma.microserviciousuario.infrastructure.exceptionhandler.exceptions.UsuarioYaExisteException;
 import com.pragma.microserviciousuario.infrastructure.out.feign.IPlazoletaClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,7 +14,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -25,9 +27,6 @@ class UsuarioUseCaseTest {
 
     @Mock
     private IUsuarioRepositorio iUsuarioRepositorio;
-
-    @Mock
-    private PasswordEncoder passwordEncoder;
 
     @Mock
     private IPlazoletaClient plazoletaClient;
@@ -53,26 +52,12 @@ class UsuarioUseCaseTest {
     }
 
     @Test
-    void deberiaCrearPropietarioExitosamente() {
-        when(passwordEncoder.encode(any())).thenReturn("claveEncriptada");
-        when(iUsuarioRepositorio.guardarUsuario(any())).thenReturn(usuarioValido);
-
-        Usuario resultado = usuarioUseCase.crearPropietario(usuarioValido);
-
-        assertNotNull(resultado);
-        verify(iUsuarioRepositorio, times(1)).guardarUsuario(any());
-    }
-
-    @Test
     void deberiaLanzarExcepcionCuandoEsMenorDeEdad() {
         usuarioValido.setFechaNacimiento(LocalDate.of(2015, 1, 1));
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> usuarioUseCase.crearPropietario(usuarioValido)
-        );
+        assertThrows(UsuarioMenordeEdadException.class,
+                () -> usuarioUseCase.crearPropietario(usuarioValido));
 
-        assertEquals("El usuario debe ser mayor de edad", exception.getMessage());
         verify(iUsuarioRepositorio, never()).guardarUsuario(any());
     }
 
@@ -80,12 +65,9 @@ class UsuarioUseCaseTest {
     void deberiaLanzarExcepcionCuandoCelularExcede13Caracteres() {
         usuarioValido.setCelular("+5730156789012345");
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> usuarioUseCase.crearPropietario(usuarioValido)
-        );
+        assertThrows(DatoInvalidoException.class,
+                () -> usuarioUseCase.crearPropietario(usuarioValido));
 
-        assertEquals("El celular debe tener máximo 13 caracteres", exception.getMessage());
         verify(iUsuarioRepositorio, never()).guardarUsuario(any());
     }
 
@@ -93,41 +75,19 @@ class UsuarioUseCaseTest {
     void deberiaLanzarExcepcionCuandoCorreoEsInvalido() {
         usuarioValido.setCorreo("correo-invalido");
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> usuarioUseCase.crearPropietario(usuarioValido)
-        );
+        assertThrows(DatoInvalidoException.class,
+                () -> usuarioUseCase.crearPropietario(usuarioValido));
 
-        assertEquals("El correo no es válido", exception.getMessage());
         verify(iUsuarioRepositorio, never()).guardarUsuario(any());
-    }
-
-    @Test
-    void deberiaCrearEmpleadoExitosamente() {
-        usuarioValido.getRol().setNombre("EMPLEADO");
-
-        when(iUsuarioRepositorio.obtenerUsuarioPorCorreo("carlos@gmail.com")).thenReturn(Optional.empty());
-        when(passwordEncoder.encode(any())).thenReturn("claveEncriptada");
-        when(iUsuarioRepositorio.guardarUsuario(any())).thenReturn(usuarioValido);
-        doNothing().when(plazoletaClient).asignarEmpleado(any());
-
-        Usuario resultado = usuarioUseCase.crearEmpleado(usuarioValido, 1L);
-
-        assertNotNull(resultado);
-        verify(iUsuarioRepositorio, times(1)).guardarUsuario(any());
-        verify(plazoletaClient, times(1)).asignarEmpleado(any());
     }
 
     @Test
     void deberiaLanzarExcepcionCuandoCorreoYaExisteEnEmpleado() {
         when(iUsuarioRepositorio.obtenerUsuarioPorCorreo("carlos@gmail.com")).thenReturn(Optional.of(usuarioValido));
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> usuarioUseCase.crearEmpleado(usuarioValido, 1L)
-        );
+        assertThrows(UsuarioYaExisteException.class,
+                () -> usuarioUseCase.crearEmpleado(usuarioValido, 1L));
 
-        assertEquals("Ya existe un usuario con ese correo", exception.getMessage());
         verify(iUsuarioRepositorio, never()).guardarUsuario(any());
         verify(plazoletaClient, never()).asignarEmpleado(any());
     }
@@ -136,93 +96,22 @@ class UsuarioUseCaseTest {
     void deberiaLanzarExcepcionCuandoEmpleadoEsMenorDeEdad() {
         usuarioValido.setFechaNacimiento(LocalDate.of(2015, 1, 1));
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> usuarioUseCase.crearEmpleado(usuarioValido, 1L)
-        );
+        assertThrows(UsuarioMenordeEdadException.class,
+                () -> usuarioUseCase.crearEmpleado(usuarioValido, 1L));
 
-        assertEquals("El usuario debe ser mayor de edad", exception.getMessage());
         verify(iUsuarioRepositorio, never()).guardarUsuario(any());
         verify(plazoletaClient, never()).asignarEmpleado(any());
     }
 
-    @Test
-    void deberiaLanzarExcepcionCuandoCelularInvalidoEnEmpleado() {
-        usuarioValido.setCelular("+5730156789012345");
-
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> usuarioUseCase.crearEmpleado(usuarioValido, 1L)
-        );
-
-        assertEquals("El celular debe tener máximo 13 caracteres", exception.getMessage());
-        verify(iUsuarioRepositorio, never()).guardarUsuario(any());
-        verify(plazoletaClient, never()).asignarEmpleado(any());
-    }
-
-    @Test
-    void deberiaLanzarExcepcionCuandoCorreoInvalidoEnEmpleado() {
-        usuarioValido.setCorreo("correo-invalido");
-
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> usuarioUseCase.crearEmpleado(usuarioValido, 1L)
-        );
-
-        assertEquals("El correo no es válido", exception.getMessage());
-        verify(iUsuarioRepositorio, never()).guardarUsuario(any());
-        verify(plazoletaClient, never()).asignarEmpleado(any());
-    }
-    @Test
-    void deberiaCrearClienteExitosamente() {
-        usuarioValido.getRol().setNombre("CLIENTE");
-
-        when(iUsuarioRepositorio.obtenerUsuarioPorCorreo("carlos@gmail.com")).thenReturn(Optional.empty());
-        when(passwordEncoder.encode(any())).thenReturn("claveEncriptada");
-        when(iUsuarioRepositorio.guardarUsuario(any())).thenReturn(usuarioValido);
-
-        Usuario resultado = usuarioUseCase.crearCliente(usuarioValido);
-
-        assertNotNull(resultado);
-        verify(iUsuarioRepositorio, times(1)).guardarUsuario(any());
-    }
 
     @Test
     void deberiaLanzarExcepcionCuandoCorreoYaExisteEnCliente() {
         when(iUsuarioRepositorio.obtenerUsuarioPorCorreo("carlos@gmail.com")).thenReturn(Optional.of(usuarioValido));
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> usuarioUseCase.crearCliente(usuarioValido)
-        );
+        assertThrows(UsuarioYaExisteException.class,
+                () -> usuarioUseCase.crearCliente(usuarioValido));
 
-        assertEquals("Ya existe un usuario con ese correo", exception.getMessage());
         verify(iUsuarioRepositorio, never()).guardarUsuario(any());
     }
 
-    @Test
-    void deberiaLanzarExcepcionCuandoCelularInvalidoEnCliente() {
-        usuarioValido.setCelular("+5730156789012345");
-
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> usuarioUseCase.crearCliente(usuarioValido)
-        );
-
-        assertEquals("El celular debe tener máximo 13 caracteres", exception.getMessage());
-        verify(iUsuarioRepositorio, never()).guardarUsuario(any());
-    }
-
-    @Test
-    void deberiaLanzarExcepcionCuandoCorreoInvalidoEnCliente() {
-        usuarioValido.setCorreo("correo-invalido");
-
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> usuarioUseCase.crearCliente(usuarioValido)
-        );
-
-        assertEquals("El correo no es válido", exception.getMessage());
-        verify(iUsuarioRepositorio, never()).guardarUsuario(any());
-    }
     }

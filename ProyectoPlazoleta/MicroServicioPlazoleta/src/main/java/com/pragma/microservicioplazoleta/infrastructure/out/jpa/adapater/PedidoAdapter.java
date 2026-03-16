@@ -2,6 +2,8 @@ package com.pragma.microservicioplazoleta.infrastructure.out.jpa.adapater;
 
 import com.pragma.microservicioplazoleta.domain.model.Pedido;
 import com.pragma.microservicioplazoleta.domain.spi.IPedidoRepositorio;
+import com.pragma.microservicioplazoleta.domain.usercase.constantes.PeidoConstantes;
+import com.pragma.microservicioplazoleta.infrastructure.exceptionhandler.exceptions.PedidoNoEncontradoException;
 import com.pragma.microservicioplazoleta.infrastructure.out.jpa.entity.PedidoEntity;
 import com.pragma.microservicioplazoleta.infrastructure.out.jpa.mapper.PedidoEntityMapper;
 import com.pragma.microservicioplazoleta.infrastructure.out.jpa.repository.PedidoRepositorio;
@@ -71,18 +73,20 @@ public class PedidoAdapter implements IPedidoRepositorio {
                 .toList();
     }
 
-    @Override
-    public Pedido pedidoEnPreparacion(Pedido pedido) {
-        PedidoEntity entity = pedidoRepositorio.findById(pedido.getId())
-                .orElseThrow(() -> new IllegalArgumentException("El pedido no existe"));
-        entity.setEstado(pedido.getEstado());
-        entity.setIdChef(pedido.getIdChef());
-        return pedidoEntityMapper.toModel(pedidoRepositorio.save(entity));
-    }
 
     @Override
     public boolean pedidoPerteneceARestaurante(Long idPedido, Long idRestaurante) {
         return pedidoRepositorio.existsByIdAndIdRestaurante(idPedido, idRestaurante);
+    }
+
+    @Override
+    public Pedido actualizarPedido(Pedido pedido) {
+        PedidoEntity entity = pedidoRepositorio.findById(pedido.getId())
+                .orElseThrow(() -> new PedidoNoEncontradoException(PeidoConstantes.PEDIDO_NO_EXISTE));
+        entity.setEstado(pedido.getEstado());
+        entity.setIdChef(pedido.getIdChef());
+        entity.setCodigoEntrega(pedido.getCodigoEntrega());
+        return pedidoEntityMapper.toModel(pedidoRepositorio.save(entity));
     }
 
 }

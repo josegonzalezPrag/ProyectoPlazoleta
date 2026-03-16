@@ -1,0 +1,333 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "OpenAPI definition",
+    "version" : "v0"
+  },
+  "servers" : [ {
+    "url" : "http://localhost:8081",
+    "description" : "Generated server url"
+  } ],
+  "security" : [ {
+    "Bearer Authentication" : [ ]
+  } ],
+  "tags" : [ {
+    "name" : "Autenticación",
+    "description" : "Gestión de autenticación del sistema"
+  }, {
+    "name" : "Usuarios",
+    "description" : "Gestión de usuarios del sistema"
+  } ],
+  "paths" : {
+    "/usuario/propietario" : {
+      "post" : {
+        "tags" : [ "Usuarios" ],
+        "summary" : "Crear propietario",
+        "description" : "Crea un nuevo usuario con rol PROPIETARIO. Solo puede ser ejecutado por un ADMINISTRADOR.",
+        "operationId" : "crearPropietario",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UsuarioRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Propietario creado exitosamente",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UsuarioResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Datos inválidos",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UsuarioResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "No tiene permisos para realizar esta acción",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UsuarioResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/usuario/empleado" : {
+      "post" : {
+        "tags" : [ "Usuarios" ],
+        "summary" : "Crear cliente",
+        "description" : "Crea un nuevo usuario con rol CLIENTE. Endpoint público.",
+        "operationId" : "crearEmpleado",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UsuarioRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Cliente creado exitosamente",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UsuarioResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Datos inválidos o correo ya registrado",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UsuarioResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/usuario/cliente" : {
+      "post" : {
+        "tags" : [ "Usuarios" ],
+        "operationId" : "crearCliente",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UsuarioRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UsuarioResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/login" : {
+      "post" : {
+        "tags" : [ "Autenticación" ],
+        "summary" : "Login",
+        "description" : "Autentica un usuario y devuelve un token JWT",
+        "operationId" : "login",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Login exitoso",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Credenciales inválidas",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Datos inválidos",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/usuario/{id}" : {
+      "get" : {
+        "tags" : [ "Usuarios" ],
+        "summary" : "Obtener usuario",
+        "description" : "Obtiene un usuario por su ID.",
+        "operationId" : "obetenerUsuario",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Usuario encontrado",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UsuarioResponse"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Usuario no encontrado",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UsuarioResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "UsuarioRequest" : {
+        "type" : "object",
+        "properties" : {
+          "nombre" : {
+            "type" : "string",
+            "minLength" : 1
+          },
+          "apellido" : {
+            "type" : "string",
+            "minLength" : 1
+          },
+          "documentoIdentidad" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "celular" : {
+            "type" : "string",
+            "minLength" : 1,
+            "pattern" : "^\\+?\\d{1,12}$"
+          },
+          "fechaNacimiento" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "correo" : {
+            "type" : "string",
+            "minLength" : 1
+          },
+          "clave" : {
+            "type" : "string",
+            "minLength" : 1
+          },
+          "idRestaurante" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "documentoIdentidad", "fechaNacimiento" ]
+      },
+      "UsuarioResponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "nombre" : {
+            "type" : "string"
+          },
+          "apellido" : {
+            "type" : "string"
+          },
+          "documentoIdentidad" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "celular" : {
+            "type" : "string"
+          },
+          "fechaNacimiento" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "correo" : {
+            "type" : "string"
+          },
+          "rolNombre" : {
+            "type" : "string"
+          }
+        }
+      },
+      "LoginRequest" : {
+        "type" : "object",
+        "properties" : {
+          "correo" : {
+            "type" : "string",
+            "minLength" : 1
+          },
+          "clave" : {
+            "type" : "string",
+            "minLength" : 1
+          }
+        }
+      },
+      "LoginResponse" : {
+        "type" : "object",
+        "properties" : {
+          "token" : {
+            "type" : "string"
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "Bearer Authentication" : {
+        "type" : "http",
+        "scheme" : "bearer",
+        "bearerFormat" : "JWT"
+      }
+    }
+  }
+}

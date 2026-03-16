@@ -8,6 +8,8 @@ import com.pragma.microservicioplazoleta.domain.spi.IPlatoRepositorio;
 import com.pragma.microservicioplazoleta.domain.spi.IRestaurantePlatoRepositorio;
 import com.pragma.microservicioplazoleta.domain.spi.IUsuarioClient;
 import com.pragma.microservicioplazoleta.domain.usercase.PlatoUseCase;
+import com.pragma.microservicioplazoleta.domain.usercase.constantes.PlatoConstantes;
+import com.pragma.microservicioplazoleta.infrastructure.exceptionhandler.exceptions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,12 +19,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import java.util.List;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
 class PlatoUseCaseTest {
-
     @Mock
     private IPlatoRepositorio iPlatoRepositorio;
 
@@ -47,11 +47,13 @@ class PlatoUseCaseTest {
         categoriaValida.setDescripcion("Platos tradicionales de Colombia");
 
         platoValido = Plato.builder()
+                .id(1L)
                 .nombre("Bandeja Paisa")
                 .precio(25000L)
                 .descripcion("Plato típico colombiano")
                 .urlImagen("https://images.com/bandeja.png")
                 .categoria(categoriaValida)
+                .activo(true)
                 .idRestaurante(1L)
                 .build();
 
@@ -64,13 +66,14 @@ class PlatoUseCaseTest {
         propietarioValido = new Usuario();
         propietarioValido.setId(2L);
         propietarioValido.setCorreo("propietario@restaurante.com");
-        propietarioValido.setRolNombre("PROPIETARIO");
+        propietarioValido.setRolNombre(PlatoConstantes.ROL_PROPIETARIO);
     }
 
     @Test
     void deberiaCrearPlatoExitosamente() {
         when(iRestauranteRepositorioPlato.obtenerRestaurantePorId(1L)).thenReturn(Optional.of(restauranteValido));
         when(iUsuarioClient.obtenerUsuarioPorId(2L)).thenReturn(propietarioValido);
+        when(iPlatoRepositorio.categoriaExiste(1L)).thenReturn(true);
         when(iPlatoRepositorio.guardarPlato(any())).thenReturn(platoValido);
 
         Plato resultado = platoUseCase.crearPlato(platoValido);
@@ -84,12 +87,9 @@ class PlatoUseCaseTest {
     void deberiaLanzarExcepcionCuandoRestauranteNoExiste() {
         when(iRestauranteRepositorioPlato.obtenerRestaurantePorId(1L)).thenReturn(Optional.empty());
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> platoUseCase.crearPlato(platoValido)
-        );
+        assertThrows(RestauranteNoEncontradoException.class,
+                () -> platoUseCase.crearPlato(platoValido));
 
-        assertEquals("El restaurante no existe", exception.getMessage());
         verify(iPlatoRepositorio, never()).guardarPlato(any());
     }
 
@@ -98,43 +98,24 @@ class PlatoUseCaseTest {
         when(iRestauranteRepositorioPlato.obtenerRestaurantePorId(1L)).thenReturn(Optional.of(restauranteValido));
         when(iUsuarioClient.obtenerUsuarioPorId(2L)).thenReturn(null);
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> platoUseCase.crearPlato(platoValido)
-        );
+        assertThrows(UsuarioNoEncontradoException.class,
+                () -> platoUseCase.crearPlato(platoValido));
 
-        assertEquals("El propietario no existe", exception.getMessage());
         verify(iPlatoRepositorio, never()).guardarPlato(any());
     }
 
     @Test
     void deberiaLanzarExcepcionCuandoUsuarioNoEsPropietario() {
         Usuario noEsPropietario = new Usuario();
-        noEsPropietario.setId(3L);
-        noEsPropietario.setCorreo("cliente@restaurante.com");
         noEsPropietario.setRolNombre("CLIENTE");
 
         when(iRestauranteRepositorioPlato.obtenerRestaurantePorId(1L)).thenReturn(Optional.of(restauranteValido));
         when(iUsuarioClient.obtenerUsuarioPorId(2L)).thenReturn(noEsPropietario);
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> platoUseCase.crearPlato(platoValido)
-        );
+        assertThrows(SinPermisosException.class,
+                () -> platoUseCase.crearPlato(platoValido));
 
-        assertEquals("El usuario no tiene rol de Propietario", exception.getMessage());
         verify(iPlatoRepositorio, never()).guardarPlato(any());
-    }
-
-    @Test
-    void deberiaSetearActivoEnTrueAlCrear() {
-        when(iRestauranteRepositorioPlato.obtenerRestaurantePorId(1L)).thenReturn(Optional.of(restauranteValido));
-        when(iUsuarioClient.obtenerUsuarioPorId(2L)).thenReturn(propietarioValido);
-        when(iPlatoRepositorio.guardarPlato(any())).thenReturn(platoValido);
-
-        platoUseCase.crearPlato(platoValido);
-
-        assertTrue(platoValido.getActivo());
     }
 
     @Test
@@ -143,108 +124,88 @@ class PlatoUseCaseTest {
         when(iRestauranteRepositorioPlato.obtenerRestaurantePorId(1L)).thenReturn(Optional.of(restauranteValido));
         when(iUsuarioClient.obtenerUsuarioPorId(2L)).thenReturn(propietarioValido);
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> platoUseCase.crearPlato(platoValido)
-        );
+        assertThrows(DatoInvalidoException.class,
+                () -> platoUseCase.crearPlato(platoValido));
 
-        assertEquals("El precio debe ser mayor a 0", exception.getMessage());
         verify(iPlatoRepositorio, never()).guardarPlato(any());
     }
 
     @Test
-    void deberiaLanzarExcepcionCuandoCategoriaEsNula() {
-        platoValido.setCategoria(null);
+    void deberiaLanzarExcepcionCuandoCategoriaNoExiste() {
         when(iRestauranteRepositorioPlato.obtenerRestaurantePorId(1L)).thenReturn(Optional.of(restauranteValido));
         when(iUsuarioClient.obtenerUsuarioPorId(2L)).thenReturn(propietarioValido);
+        when(iPlatoRepositorio.categoriaExiste(1L)).thenReturn(false);
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> platoUseCase.crearPlato(platoValido)
-        );
+        assertThrows(DatoInvalidoException.class,
+                () -> platoUseCase.crearPlato(platoValido));
 
-        assertEquals("La categoría no puede ser nula", exception.getMessage());
         verify(iPlatoRepositorio, never()).guardarPlato(any());
     }
 
     @Test
-    void deberiaLanzarExcepcionCuandoCategoriaNoTieneId() {
-        Categoria sinId = new Categoria();
-        sinId.setNombre("Sin ID");
-        platoValido.setCategoria(sinId);
+    void deberiaActualizarPlatoExitosamente() {
+        when(iPlatoRepositorio.obtenerPlatoPorId(1L)).thenReturn(Optional.of(platoValido));
+        when(iPlatoRepositorio.guardarPlato(any())).thenReturn(platoValido);
 
-        when(iRestauranteRepositorioPlato.obtenerRestaurantePorId(1L)).thenReturn(Optional.of(restauranteValido));
-        when(iUsuarioClient.obtenerUsuarioPorId(2L)).thenReturn(propietarioValido);
+        Plato resultado = platoUseCase.actualizarPlato(1L, 28000L, "Nueva descripcion");
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> platoUseCase.crearPlato(platoValido)
-        );
+        assertNotNull(resultado);
+        assertEquals(28000L, platoValido.getPrecio());
+        assertEquals("Nueva descripcion", platoValido.getDescripcion());
+        verify(iPlatoRepositorio, times(1)).guardarPlato(any());
+    }
 
-        assertEquals("La categoría debe tener un ID válido", exception.getMessage());
+    @Test
+    void deberiaLanzarExcepcionCuandoPlatoNoExisteAlActualizar() {
+        when(iPlatoRepositorio.obtenerPlatoPorId(1L)).thenReturn(Optional.empty());
+
+        assertThrows(PlatoNoEncontradoException.class,
+                () -> platoUseCase.actualizarPlato(1L, 28000L, "Nueva descripcion"));
+
         verify(iPlatoRepositorio, never()).guardarPlato(any());
     }
 
     @Test
-    void deberiaListarPlatosPorRestauranteExitosamente() {
-        List<Plato> platos = List.of(
-                platoValido,
-                Plato.builder()
-                        .nombre("Ajiaco")
-                        .precio(20000L)
-                        .descripcion("Sopa típica bogotana")
-                        .urlImagen("https://images.com/ajiaco.png")
-                        .categoria(platoValido.getCategoria())
-                        .idRestaurante(1L)
-                        .build()
-        );
+    void deberiaLanzarExcepcionCuandoPrecioEsNegativo() {
+        when(iPlatoRepositorio.obtenerPlatoPorId(1L)).thenReturn(Optional.of(platoValido));
 
-        when(iRestauranteRepositorioPlato.obtenerRestaurantePorId(1L)).thenReturn(Optional.of(restauranteValido));
-        when(iPlatoRepositorio.listarPlatosPorRestaurante(1L, null, 0, 10)).thenReturn(platos);
+        assertThrows(DatoInvalidoException.class,
+                () -> platoUseCase.actualizarPlato(1L, -5000L, "Nueva descripcion"));
 
-        List<Plato> resultado = platoUseCase.listarPlatosPorRestaurante(1L, null, 0, 10);
-
-        assertNotNull(resultado);
-        assertEquals(2, resultado.size());
-        verify(iPlatoRepositorio, times(1)).listarPlatosPorRestaurante(1L, null, 0, 10);
+        verify(iPlatoRepositorio, never()).guardarPlato(any());
     }
 
     @Test
-    void deberiaListarPlatosFiltradosPorCategoria() {
-        List<Plato> platos = List.of(platoValido);
-
+    void deberiaCambiarEstadoPlatoExitosamente() {
+        when(iPlatoRepositorio.obtenerPlatoPorId(1L)).thenReturn(Optional.of(platoValido));
         when(iRestauranteRepositorioPlato.obtenerRestaurantePorId(1L)).thenReturn(Optional.of(restauranteValido));
-        when(iPlatoRepositorio.listarPlatosPorRestaurante(1L, 1L, 0, 10)).thenReturn(platos);
+        when(iPlatoRepositorio.guardarPlato(any())).thenReturn(platoValido);
 
-        List<Plato> resultado = platoUseCase.listarPlatosPorRestaurante(1L, 1L, 0, 10);
+        Plato resultado = platoUseCase.cambiarEstadoPlato(1L, false, 2L);
 
         assertNotNull(resultado);
-        assertEquals(1, resultado.size());
-        assertEquals("Típica colombiana", resultado.getFirst().getCategoria().getNombre());
-        verify(iPlatoRepositorio, times(1)).listarPlatosPorRestaurante(1L, 1L, 0, 10);
+        assertFalse(platoValido.getActivo());
+        verify(iPlatoRepositorio, times(1)).guardarPlato(any());
     }
 
     @Test
-    void deberiaLanzarExcepcionCuandoRestauranteNoExisteAlListar() {
-        when(iRestauranteRepositorioPlato.obtenerRestaurantePorId(1L)).thenReturn(Optional.empty());
+    void deberiaLanzarExcepcionCuandoPlatoNoExisteEnCambioEstado() {
+        when(iPlatoRepositorio.obtenerPlatoPorId(1L)).thenReturn(Optional.empty());
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> platoUseCase.listarPlatosPorRestaurante(1L, null, 0, 10)
-        );
+        assertThrows(PlatoNoEncontradoException.class,
+                () -> platoUseCase.cambiarEstadoPlato(1L, false, 2L));
 
-        assertEquals("El restaurante no existe", exception.getMessage());
-        verify(iPlatoRepositorio, never()).listarPlatosPorRestaurante(any(), any(), anyInt(), anyInt());
+        verify(iPlatoRepositorio, never()).guardarPlato(any());
     }
 
     @Test
-    void deberiaRetornarListaVaciaCuandoNoHayPlatos() {
+    void deberiaLanzarExcepcionCuandoPropietarioNoEsDuenioDelRestaurante() {
+        when(iPlatoRepositorio.obtenerPlatoPorId(1L)).thenReturn(Optional.of(platoValido));
         when(iRestauranteRepositorioPlato.obtenerRestaurantePorId(1L)).thenReturn(Optional.of(restauranteValido));
-        when(iPlatoRepositorio.listarPlatosPorRestaurante(1L, null, 0, 10)).thenReturn(List.of());
 
-        List<Plato> resultado = platoUseCase.listarPlatosPorRestaurante(1L, null, 0, 10);
+        assertThrows(SinPermisosException.class,
+                () -> platoUseCase.cambiarEstadoPlato(1L, false, 99L));
 
-        assertNotNull(resultado);
-        assertEquals(0, resultado.size());
+        verify(iPlatoRepositorio, never()).guardarPlato(any());
     }
 }

@@ -32,7 +32,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 String correo = jwtConfig.extraerCorreo(token);
                 String rol = jwtConfig.extraerRol(token);
                 Long id = jwtConfig.extraerId(token);
-                var auth = new UsernamePasswordAuthenticationToken(
+                UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                         correo, id,
                         List.of(new SimpleGrantedAuthority("ROLE_" + rol))
                 );

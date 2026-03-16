@@ -24,16 +24,13 @@ public class PlatoAdapter implements IPlatoRepositorio {
     @Override
     public Plato guardarPlato(Plato plato) {
         PlatoEntiy entity = platoEntityMapper.toEntidy(plato);
-
         if (plato.getCategoria() != null && plato.getCategoria().getId() != null) {
             CategoriaEntity categoriaEntity = categoriaRepositorio.findById(plato.getCategoria().getId())
-                    .orElseThrow(() -> new IllegalArgumentException("Categoria no encontrada"));
+                    .orElse(null);
             entity.setCategoria(categoriaEntity);
         }
-
         PlatoEntiy guardado = platoRepositorio.save(entity);
-        return obtenerPlatoPorId(guardado.getId())
-                .orElseThrow(() -> new IllegalArgumentException("Error al recuperar el plato guardado"));
+        return obtenerPlatoPorId(guardado.getId()).orElse(null);
     }
 
     @Override
@@ -81,6 +78,11 @@ public class PlatoAdapter implements IPlatoRepositorio {
                     return plato;
                 })
                 .toList();
+    }
+
+    @Override
+    public boolean categoriaExiste(Long idCategoria) {
+        return categoriaRepositorio.existsById(idCategoria);
     }
 
 }

@@ -15,5 +15,6 @@ public class Pedido {
     private String estado;
     private Long idChef;
     private Long idRestaurante;
+    private String codigoEntrega;
     private List<PedidoPlato> platos;
 }

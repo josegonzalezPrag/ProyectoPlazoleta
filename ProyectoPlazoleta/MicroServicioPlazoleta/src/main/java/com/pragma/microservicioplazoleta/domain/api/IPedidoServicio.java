@@ -6,7 +6,8 @@ import java.util.List;
 
 public interface IPedidoServicio {
     Pedido crearPedido(Pedido pedido);
-    List<Pedido> listarPedidos(Long idRestaurante, String estado, int pagina, int tamano);
-    Pedido asignarEmpleado(Long idPedido, Long idEmpleado, Long idRestauranteEmpleado);
+    Pedido marcarComoListo(Long idPedido, Long idChef);
+    Pedido asignarEmpleado(Long idPedido, Long idEmpleado);
+    List<Pedido> listarPedidos(Long idEmpleado, String estado, int pagina, int tamano);
     List<Pedido> listarPedidosPorCliente(Long idCliente);
 }

@@ -20,13 +20,12 @@ public class UsuarioAdapter implements IUsuarioRepositorio {
     private final UsuarioEntiyMapper usuarioEntiyMapper;
     private final RolRepositorio rolRepositorio;
 
+
     @Override
     public Usuario guardarUsuario(Usuario usuario) {
         UsuarioEntiy entity = usuarioEntiyMapper.toEntity(usuario);
-        RolEntity rolEntity = rolRepositorio.findById(usuario.getRol().getId())
-                .orElseThrow(() -> new IllegalArgumentException("Rol no encontrado: " + usuario.getRol().getId()));
+        RolEntity rolEntity = rolRepositorio.findById(usuario.getRol().getId()).orElse(null);
         entity.setRol(rolEntity);
-
         return usuarioEntiyMapper.toModel(usuarioRepositorio.save(entity));
     }
 
@@ -39,6 +38,11 @@ public class UsuarioAdapter implements IUsuarioRepositorio {
     public Optional<Usuario> obtenerUsuarioPorCorreo(String correo) {
         return usuarioRepositorio.findByCorreo(correo)
                 .map(usuarioEntiyMapper::toModel);
+    }
+
+    @Override
+    public boolean rolExiste(Long idRol) {
+        return rolRepositorio.existsById(idRol);
     }
 
 }

@@ -20,6 +20,7 @@ public class PedidoEntity {
     private String estado;
     private Long idChef;
     private Long idRestaurante;
+    private String codigoEntrega;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "id_pedido")

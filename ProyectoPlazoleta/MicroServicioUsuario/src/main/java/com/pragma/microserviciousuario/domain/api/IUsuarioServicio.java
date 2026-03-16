@@ -5,7 +5,7 @@ import com.pragma.microserviciousuario.domain.model.Usuario;
 
 public interface IUsuarioServicio {
     Usuario crearPropietario(Usuario usuario);
-    Usuario crearEmpleado(Usuario usuario, Long idRestaurante);
     Usuario crearCliente(Usuario usuario);
+    Usuario crearEmpleado(Usuario usuario, Long idRestaurante);
     Usuario obetenerUsuario(Long id);
 }
