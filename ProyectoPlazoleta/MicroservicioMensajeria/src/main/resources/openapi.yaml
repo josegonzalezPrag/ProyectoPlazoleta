@@ -5,6 +5,8 @@ info:
 servers:
 - url: http://localhost:8083
   description: Generated server url
+security:
+- Bearer Authentication: []
 paths:
   /mensajeria/enviar:
     post:

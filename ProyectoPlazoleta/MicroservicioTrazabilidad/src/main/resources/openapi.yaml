@@ -12,6 +12,9 @@ paths:
     post:
       tags:
       - trazabilidad-controller
+      summary: Registrar cambio de estado
+      description: Registra un cambio de estado de un pedido. Endpoint interno llamado
+        por MicroServicioPlazoleta.
       operationId: registrarCambioEstado
       requestBody:
         content:
@@ -20,16 +23,89 @@ paths:
               $ref: "#/components/schemas/TrazabilidadRequest"
         required: true
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Cambio de estado registrado exitosamente
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/TrazabilidadResponse"
+        "400":
+          description: Datos inválidos
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/TrazabilidadResponse"
+  /trazabilidad/restaurante/{idRestaurante}/ranking-empleados:
+    get:
+      tags:
+      - trazabilidad-controller
+      summary: Obtener ranking de empleados
+      description: Muestra el ranking de empleados por tiempo medio de entrega. Solo
+        puede ser ejecutado por un PROPIETARIO.
+      operationId: obtenerRankingPorEmpleado
+      parameters:
+      - name: idRestaurante
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: Ranking obtenido exitosamente
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TiempoEmpleadoResponse"
+        "403":
+          description: No tiene permisos para realizar esta acción
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TiempoEmpleadoResponse"
+  /trazabilidad/restaurante/{idRestaurante}/eficiencia:
+    get:
+      tags:
+      - trazabilidad-controller
+      summary: Obtener eficiencia por pedido
+      description: Muestra el tiempo de entrega de cada pedido del restaurante. Solo
+        puede ser ejecutado por un PROPIETARIO.
+      operationId: obtenerEficienciaPorPedido
+      parameters:
+      - name: idRestaurante
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: Eficiencia obtenida exitosamente
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TiempoPedidoResponse"
+        "403":
+          description: No tiene permisos para realizar esta acción
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TiempoPedidoResponse"
   /trazabilidad/pedido/{idPedido}:
     get:
       tags:
       - trazabilidad-controller
+      summary: Obtener trazabilidad de pedido
+      description: Obtiene el historial de cambios de estado de un pedido. Puede ser
+        ejecutado por CLIENTE o PROPIETARIO.
       operationId: obtenerTrazabilidadPedido
       parameters:
       - name: idPedido
@@ -40,7 +116,23 @@ paths:
           format: int64
       responses:
         "200":
-          description: OK
+          description: Historial obtenido exitosamente
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TrazabilidadResponse"
+        "404":
+          description: No existe trazabilidad para el pedido
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TrazabilidadResponse"
+        "403":
+          description: No tiene permisos para realizar esta acción
           content:
             '*/*':
               schema:
@@ -51,6 +143,9 @@ paths:
     get:
       tags:
       - trazabilidad-controller
+      summary: Calcular tiempo de entrega
+      description: Calcula el tiempo en minutos entre el estado Pendiente y Entregado
+        de un pedido. Solo puede ser ejecutado por un PROPIETARIO.
       operationId: calcularTiempoEntrega
       parameters:
       - name: idPedido
@@ -61,7 +156,25 @@ paths:
           format: int64
       responses:
         "200":
-          description: OK
+          description: Tiempo calculado exitosamente
+          content:
+            '*/*':
+              schema:
+                type: string
+        "400":
+          description: El pedido fue cancelado o aún no ha sido entregado
+          content:
+            '*/*':
+              schema:
+                type: string
+        "404":
+          description: No existe trazabilidad para el pedido
+          content:
+            '*/*':
+              schema:
+                type: string
+        "403":
+          description: No tiene permisos para realizar esta acción
           content:
             '*/*':
               schema:
@@ -116,6 +229,24 @@ components:
         fechaCambio:
           type: string
           format: date-time
+    TiempoEmpleadoResponse:
+      type: object
+      properties:
+        idEmpleado:
+          type: integer
+          format: int64
+        tiempoMedioMinutos:
+          type: number
+          format: double
+    TiempoPedidoResponse:
+      type: object
+      properties:
+        idPedido:
+          type: integer
+          format: int64
+        minutosEntrega:
+          type: integer
+          format: int64
   securitySchemes:
     Bearer Authentication:
       type: http
