@@ -3,6 +3,7 @@ package com.pragma.microservicioplazoleta.infrastructure.input.rest;
 import com.pragma.microservicioplazoleta.aplication.dto.request.EntregarPedidoRequest;
 import com.pragma.microservicioplazoleta.aplication.dto.request.PedidoRequest;
 import com.pragma.microservicioplazoleta.aplication.dto.response.PedidoResponse;
+import com.pragma.microservicioplazoleta.aplication.dto.response.TrazabilidadResponse;
 import com.pragma.microservicioplazoleta.aplication.handler.IPedidoHandler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -171,5 +172,25 @@ public class PedidoController {
         }
         Long idCliente = (Long) auth.getCredentials();
         return ResponseEntity.ok(pedidoHandler.cancelarPedido(idPedido, idCliente));
+    }
+
+    @Operation(
+            summary = "Consultar trazabilidad de pedido",
+            description = "Consulta el historial de estados de un pedido. Solo puede ser ejecutado por el cliente dueño del pedido.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Historial obtenido exitosamente"),
+                    @ApiResponse(responseCode = "403", description = "No tienes permiso para consultar este pedido"),
+                    @ApiResponse(responseCode = "404", description = "Pedido no encontrado")
+            }
+    )
+    @GetMapping("/{idPedido}/trazabilidad")
+    @PreAuthorize("hasRole('CLIENTE')")
+    public ResponseEntity<List<TrazabilidadResponse>> obtenerTrazabilidadPedido(@PathVariable Long idPedido) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getCredentials() == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        Long idCliente = (Long) auth.getCredentials();
+        return ResponseEntity.ok(pedidoHandler.obtenerTrazabilidadPedido(idPedido, idCliente));
     }
 }

@@ -1,0 +1,52 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: http://localhost:8083
+  description: Generated server url
+paths:
+  /mensajeria/enviar:
+    post:
+      tags:
+      - mensahe-controller
+      summary: Enviar SMS
+      description: Envía un mensaje SMS al número indicado. Endpoint interno llamado
+        por MicroServicioPlazoleta.
+      operationId: enviarMensaje
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MensajeRequet"
+        required: true
+      responses:
+        "200":
+          description: Mensaje enviado exitosamente
+          content:
+            '*/*':
+              schema:
+                type: string
+        "400":
+          description: Datos inválidos
+          content:
+            '*/*':
+              schema:
+                type: string
+components:
+  schemas:
+    MensajeRequet:
+      required:
+      - mensaje
+      - numeroCelular
+      type: object
+      properties:
+        numeroCelular:
+          type: string
+        mensaje:
+          type: string
+  securitySchemes:
+    Bearer Authentication:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

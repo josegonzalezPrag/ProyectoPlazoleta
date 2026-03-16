@@ -40,8 +40,9 @@ public class BeanConfiguration {
     public IPedidoServicio pedidoServicio(IPedidoRepositorio pedidoRepositorio,
                                           IUsuarioClient usuarioClient,
                                           IRestauranteEmpleadoRespositorio restauranteEmpleadoRepositorio,
-                                          IMensajeriClientt mensajeriaClient) {
-        return new PedidoUseCase(pedidoRepositorio, usuarioClient, restauranteEmpleadoRepositorio, mensajeriaClient);
+                                          IMensajeriClientt mensajeriaClient,
+                                          ITrazabilidadClient trazabilidadClient) {
+        return new PedidoUseCase(pedidoRepositorio, usuarioClient, restauranteEmpleadoRepositorio, mensajeriaClient, trazabilidadClient);
     }
 
 

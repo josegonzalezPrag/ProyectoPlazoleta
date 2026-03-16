@@ -2,6 +2,7 @@ package com.pragma.microservicioplazoleta.aplication.handler;
 
 import com.pragma.microservicioplazoleta.aplication.dto.request.PedidoRequest;
 import com.pragma.microservicioplazoleta.aplication.dto.response.PedidoResponse;
+import com.pragma.microservicioplazoleta.aplication.dto.response.TrazabilidadResponse;
 
 import java.util.List;
 
@@ -13,4 +14,5 @@ public interface IPedidoHandler {
     PedidoResponse cancelarPedido(Long idPedido, Long idCliente);
     PedidoResponse entregarPedido(Long idPedido, String codigoEntrega, Long idEmpleado);
     List<PedidoResponse> listarPedidosPorCliente(Long idCliente);
+    List<TrazabilidadResponse> obtenerTrazabilidadPedido(Long idPedido, Long idCliente);
 }

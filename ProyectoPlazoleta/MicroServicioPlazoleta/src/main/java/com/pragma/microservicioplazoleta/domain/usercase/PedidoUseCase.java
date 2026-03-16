@@ -1,17 +1,16 @@
 package com.pragma.microservicioplazoleta.domain.usercase;
 
+import com.pragma.microservicioplazoleta.aplication.dto.response.TrazabilidadResponse;
 import com.pragma.microservicioplazoleta.domain.api.IPedidoServicio;
 import com.pragma.microservicioplazoleta.domain.model.Pedido;
 import com.pragma.microservicioplazoleta.domain.model.PedidoPlato;
 import com.pragma.microservicioplazoleta.domain.model.Usuario;
-import com.pragma.microservicioplazoleta.domain.spi.IMensajeriClientt;
-import com.pragma.microservicioplazoleta.domain.spi.IPedidoRepositorio;
-import com.pragma.microservicioplazoleta.domain.spi.IRestauranteEmpleadoRespositorio;
-import com.pragma.microservicioplazoleta.domain.spi.IUsuarioClient;
+import com.pragma.microservicioplazoleta.domain.spi.*;
 import com.pragma.microservicioplazoleta.domain.usercase.constantes.PeidoConstantes;
 import com.pragma.microservicioplazoleta.infrastructure.exceptionhandler.exceptions.DatoInvalidoException;
 import com.pragma.microservicioplazoleta.infrastructure.exceptionhandler.exceptions.PedidoNoEncontradoException;
 import com.pragma.microservicioplazoleta.infrastructure.exceptionhandler.exceptions.SinPermisosException;
+import com.pragma.microservicioplazoleta.aplication.dto.request.TrazabilidadRequest;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,21 +21,35 @@ public class PedidoUseCase implements IPedidoServicio {
     private final IUsuarioClient usuarioClient;
     private final IRestauranteEmpleadoRespositorio restauranteEmpleadoRepositorio;
     private final IMensajeriClientt mensajeriaClient;
+    private final ITrazabilidadClient trazabilidadClient;
     private final Random r = new Random();
 
     public PedidoUseCase(IPedidoRepositorio pedidoRepositorio,
                          IUsuarioClient usuarioClient,
                          IRestauranteEmpleadoRespositorio restauranteEmpleadoRepositorio,
-                         IMensajeriClientt mensajeriaClient) {
+                         IMensajeriClientt mensajeriaClient,
+                         ITrazabilidadClient trazabilidadClient) {
         this.pedidoRepositorio = pedidoRepositorio;
         this.usuarioClient = usuarioClient;
         this.restauranteEmpleadoRepositorio = restauranteEmpleadoRepositorio;
         this.mensajeriaClient = mensajeriaClient;
+        this.trazabilidadClient = trazabilidadClient;
     }
 
     private Pedido obtenerPedidoOLanzarExcepcion(Long idPedido) {
         return pedidoRepositorio.obtenerPedidoPorId(idPedido)
                 .orElseThrow(() -> new PedidoNoEncontradoException(PeidoConstantes.PEDIDO_NO_EXISTE));
+    }
+
+    private void registrarTrazabilidad(Pedido pedido, String estadoAnterior, String estadoNuevo, Long idEmpleado) {
+        TrazabilidadRequest trazabilidad = new TrazabilidadRequest();
+        trazabilidad.setIdPedido(pedido.getId());
+        trazabilidad.setIdCliente(pedido.getIdCliente());
+        trazabilidad.setIdEmpleado(idEmpleado);
+        trazabilidad.setIdRestaurante(pedido.getIdRestaurante());
+        trazabilidad.setEstadoAnterior(estadoAnterior);
+        trazabilidad.setEstadoNuevo(estadoNuevo);
+        trazabilidadClient.registrarCambioEstado(trazabilidad);
     }
 
     @Override
@@ -53,7 +66,10 @@ public class PedidoUseCase implements IPedidoServicio {
 
         pedido.setEstado(PeidoConstantes.ESTADO_PENDIENTE);
         pedido.setFecha(LocalDateTime.now());
-        return pedidoRepositorio.guardarPedido(pedido);
+        Pedido guardado = pedidoRepositorio.guardarPedido(pedido);
+        registrarTrazabilidad(guardado, null, PeidoConstantes.ESTADO_PENDIENTE, null);
+
+        return guardado;
     }
 
 
@@ -78,7 +94,11 @@ public class PedidoUseCase implements IPedidoServicio {
 
         pedido.setEstado(PeidoConstantes.ESTADO_EN_PREPARACION);
         pedido.setIdChef(idEmpleado);
-        return pedidoRepositorio.actualizarPedido(pedido);
+        Pedido actualizado = pedidoRepositorio.actualizarPedido(pedido);
+
+        registrarTrazabilidad(actualizado, PeidoConstantes.ESTADO_PENDIENTE, PeidoConstantes.ESTADO_EN_PREPARACION, idEmpleado);
+
+        return actualizado;
     }
 
     @Override
@@ -101,7 +121,11 @@ public class PedidoUseCase implements IPedidoServicio {
 
         pedido.setEstado(PeidoConstantes.ESTADO_LISTO);
         pedido.setCodigoEntrega(codigo);
-        return pedidoRepositorio.actualizarPedido(pedido);
+        Pedido actualizado = pedidoRepositorio.actualizarPedido(pedido);
+
+        registrarTrazabilidad(actualizado, PeidoConstantes.ESTADO_EN_PREPARACION, PeidoConstantes.ESTADO_LISTO, idChef);
+
+        return actualizado;
     }
 
     @Override
@@ -122,7 +146,11 @@ public class PedidoUseCase implements IPedidoServicio {
             throw new DatoInvalidoException(PeidoConstantes.CODIGO_INVALIDO);
 
         pedido.setEstado(PeidoConstantes.ESTADO_ENTREGADO);
-        return pedidoRepositorio.actualizarPedido(pedido);
+        Pedido actualizado = pedidoRepositorio.actualizarPedido(pedido);
+
+        registrarTrazabilidad(actualizado, PeidoConstantes.ESTADO_LISTO, PeidoConstantes.ESTADO_ENTREGADO, idEmpleado);
+
+        return actualizado;
     }
 
     @Override
@@ -136,7 +164,21 @@ public class PedidoUseCase implements IPedidoServicio {
             throw new DatoInvalidoException(PeidoConstantes.PEDIDO_NO_ESTA_PENDIENTE);
 
         pedido.setEstado(PeidoConstantes.ESTADO_CANCELADO);
-        return pedidoRepositorio.actualizarPedido(pedido);
+        Pedido actualizado = pedidoRepositorio.actualizarPedido(pedido);
+
+        registrarTrazabilidad(actualizado, PeidoConstantes.ESTADO_PENDIENTE, PeidoConstantes.ESTADO_CANCELADO, null);
+
+        return actualizado;
+    }
+
+    @Override
+    public List<TrazabilidadResponse> obtenerTrazabilidadPedido(Long idPedido, Long idCliente) {
+        Pedido pedido = obtenerPedidoOLanzarExcepcion(idPedido);
+
+        if (!pedido.getIdCliente().equals(idCliente))
+            throw new SinPermisosException(PeidoConstantes.CLIENTE_NO_ES_DUENO);
+
+        return trazabilidadClient.obtenerTrazabilidadPedido(idPedido);
     }
 
 }

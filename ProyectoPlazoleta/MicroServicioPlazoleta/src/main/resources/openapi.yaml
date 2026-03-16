@@ -695,6 +695,64 @@
         }
       }
     },
+    "/pedido/{idPedido}/trazabilidad" : {
+      "get" : {
+        "tags" : [ "Pedidos" ],
+        "summary" : "Consultar trazabilidad de pedido",
+        "description" : "Consulta el historial de estados de un pedido. Solo puede ser ejecutado por el cliente dueño del pedido.",
+        "operationId" : "obtenerTrazabilidadPedido",
+        "parameters" : [ {
+          "name" : "idPedido",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Historial obtenido exitosamente",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/TrazabilidadResponse"
+                  }
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "No tienes permiso para consultar este pedido",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/TrazabilidadResponse"
+                  }
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Pedido no encontrado",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/TrazabilidadResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/pedido/mis-pedidos" : {
       "get" : {
         "tags" : [ "Pedidos" ],
@@ -1037,6 +1095,40 @@
           "codigoEntrega" : {
             "type" : "string",
             "minLength" : 1
+          }
+        }
+      },
+      "TrazabilidadResponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "idPedido" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "idCliente" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "idEmpleado" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "idRestaurante" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "estadoAnterior" : {
+            "type" : "string"
+          },
+          "estadoNuevo" : {
+            "type" : "string"
+          },
+          "fechaCambio" : {
+            "type" : "string",
+            "format" : "date-time"
           }
         }
       }

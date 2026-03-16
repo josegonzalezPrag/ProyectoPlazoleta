@@ -2,6 +2,7 @@ package com.pragma.microservicioplazoleta.aplication.handler.impl;
 
 import com.pragma.microservicioplazoleta.aplication.dto.request.PedidoRequest;
 import com.pragma.microservicioplazoleta.aplication.dto.response.PedidoResponse;
+import com.pragma.microservicioplazoleta.aplication.dto.response.TrazabilidadResponse;
 import com.pragma.microservicioplazoleta.aplication.handler.IPedidoHandler;
 import com.pragma.microservicioplazoleta.aplication.mapper.PedidoRequestMapper;
 import com.pragma.microservicioplazoleta.domain.api.IPedidoServicio;
@@ -58,5 +59,10 @@ public class PedidoHandlerImp implements IPedidoHandler {
     @Override
     public PedidoResponse cancelarPedido(Long idPedido, Long idCliente) {
         return pedidoRequestMapper.toResponse(pedidoServicio.cancelarPedido(idPedido, idCliente));
+    }
+
+    @Override
+    public List<TrazabilidadResponse> obtenerTrazabilidadPedido(Long idPedido, Long idCliente) {
+        return pedidoServicio.obtenerTrazabilidadPedido(idPedido, idCliente);
     }
 }

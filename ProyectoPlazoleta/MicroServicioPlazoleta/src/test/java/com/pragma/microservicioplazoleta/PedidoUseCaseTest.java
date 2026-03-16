@@ -1,10 +1,12 @@
 package com.pragma.microservicioplazoleta;
 
+import com.pragma.microservicioplazoleta.aplication.dto.response.TrazabilidadResponse;
 import com.pragma.microservicioplazoleta.domain.model.Pedido;
 import com.pragma.microservicioplazoleta.domain.model.PedidoPlato;
 import com.pragma.microservicioplazoleta.domain.model.RestauranteEmpleado;
 import com.pragma.microservicioplazoleta.domain.spi.IPedidoRepositorio;
 import com.pragma.microservicioplazoleta.domain.spi.IRestauranteEmpleadoRespositorio;
+import com.pragma.microservicioplazoleta.domain.spi.ITrazabilidadClient;
 import com.pragma.microservicioplazoleta.domain.usercase.PedidoUseCase;
 import com.pragma.microservicioplazoleta.domain.usercase.constantes.PeidoConstantes;
 import com.pragma.microservicioplazoleta.infrastructure.exceptionhandler.exceptions.DatoInvalidoException;
@@ -25,6 +27,9 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class PedidoUseCaseTest {
+    @Mock
+    private ITrazabilidadClient trazabilidadClient;
+
     @Mock
     private IPedidoRepositorio pedidoRepositorio;
 
@@ -248,6 +253,33 @@ class PedidoUseCaseTest {
                 () -> pedidoUseCase.cancelarPedido(1L, 1L));
 
         verify(pedidoRepositorio, never()).actualizarPedido(any());
+    }
+
+
+    @Test
+    void deberiaObtenerTrazabilidadPedidoExitosamente() {
+        TrazabilidadResponse response = new TrazabilidadResponse();
+        response.setIdPedido(1L);
+        response.setEstadoNuevo(PeidoConstantes.ESTADO_PENDIENTE);
+
+        when(pedidoRepositorio.obtenerPedidoPorId(1L)).thenReturn(Optional.of(pedidoValido));
+        when(trazabilidadClient.obtenerTrazabilidadPedido(1L)).thenReturn(List.of(response));
+
+        List<TrazabilidadResponse> resultado = pedidoUseCase.obtenerTrazabilidadPedido(1L, 1L);
+
+        assertNotNull(resultado);
+        assertEquals(1, resultado.size());
+        verify(trazabilidadClient, times(1)).obtenerTrazabilidadPedido(1L);
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoClienteNoEsDuenioAlConsultarTrazabilidad() {
+        when(pedidoRepositorio.obtenerPedidoPorId(1L)).thenReturn(Optional.of(pedidoValido));
+
+        assertThrows(SinPermisosException.class,
+                () -> pedidoUseCase.obtenerTrazabilidadPedido(1L, 99L));
+
+        verify(trazabilidadClient, never()).obtenerTrazabilidadPedido(any());
     }
 
 }

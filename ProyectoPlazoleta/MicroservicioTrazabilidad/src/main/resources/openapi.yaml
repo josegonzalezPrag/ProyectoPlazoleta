@@ -1,0 +1,123 @@
+openapi: 3.1.0
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: http://localhost:8084
+  description: Generated server url
+security:
+- Bearer Authentication: []
+paths:
+  /trazabilidad/registrar:
+    post:
+      tags:
+      - trazabilidad-controller
+      operationId: registrarCambioEstado
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TrazabilidadRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/TrazabilidadResponse"
+  /trazabilidad/pedido/{idPedido}:
+    get:
+      tags:
+      - trazabilidad-controller
+      operationId: obtenerTrazabilidadPedido
+      parameters:
+      - name: idPedido
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TrazabilidadResponse"
+  /trazabilidad/pedido/{idPedido}/tiempo:
+    get:
+      tags:
+      - trazabilidad-controller
+      operationId: calcularTiempoEntrega
+      parameters:
+      - name: idPedido
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+components:
+  schemas:
+    TrazabilidadRequest:
+      type: object
+      properties:
+        idPedido:
+          type: integer
+          format: int64
+        idCliente:
+          type: integer
+          format: int64
+        idEmpleado:
+          type: integer
+          format: int64
+        idRestaurante:
+          type: integer
+          format: int64
+        estadoAnterior:
+          type: string
+        estadoNuevo:
+          type: string
+          minLength: 1
+      required:
+      - idCliente
+      - idPedido
+      - idRestaurante
+    TrazabilidadResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        idPedido:
+          type: integer
+          format: int64
+        idCliente:
+          type: integer
+          format: int64
+        idEmpleado:
+          type: integer
+          format: int64
+        idRestaurante:
+          type: integer
+          format: int64
+        estadoAnterior:
+          type: string
+        estadoNuevo:
+          type: string
+        fechaCambio:
+          type: string
+          format: date-time
+  securitySchemes:
+    Bearer Authentication:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
