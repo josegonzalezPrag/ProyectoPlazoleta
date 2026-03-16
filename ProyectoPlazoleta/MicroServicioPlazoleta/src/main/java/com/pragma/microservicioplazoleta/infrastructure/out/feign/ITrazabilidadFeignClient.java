@@ -2,6 +2,8 @@ package com.pragma.microservicioplazoleta.infrastructure.out.feign;
 
 
 import com.pragma.microservicioplazoleta.aplication.dto.request.TrazabilidadRequest;
+import com.pragma.microservicioplazoleta.aplication.dto.response.TiempoEmpleadoResponse;
+import com.pragma.microservicioplazoleta.aplication.dto.response.TiempoPedidoResponse;
 import com.pragma.microservicioplazoleta.aplication.dto.response.TrazabilidadResponse;
 import com.pragma.microservicioplazoleta.infrastructure.configuration.FeignConfig;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -19,4 +21,10 @@ public interface ITrazabilidadFeignClient {
 
     @GetMapping("/trazabilidad/pedido/{idPedido}")
     List<TrazabilidadResponse> obtenerTrazabilidadPedido(@PathVariable Long idPedido);
+
+    @GetMapping("/trazabilidad/restaurante/{idRestaurante}/eficiencia")
+    List<TiempoPedidoResponse> obtenerEficienciaPorPedido(@PathVariable Long idRestaurante);
+
+    @GetMapping("/trazabilidad/restaurante/{idRestaurante}/ranking-empleados")
+    List<TiempoEmpleadoResponse> obtenerRankingPorEmpleado(@PathVariable Long idRestaurante);
 }

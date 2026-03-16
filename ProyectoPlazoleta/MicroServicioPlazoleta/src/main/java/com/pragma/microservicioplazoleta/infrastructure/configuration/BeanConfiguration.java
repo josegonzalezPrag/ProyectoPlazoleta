@@ -16,11 +16,11 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class BeanConfiguration {
     @Bean
-    public IRestauranteServicio restauranteServicio(IRestauranteRepositorio iRestauranteRepositorio,
-                                                    IUsuarioClient iUsuarioClient) {
-        return new RestauranteUseCase(iRestauranteRepositorio, iUsuarioClient);
+    public IRestauranteServicio restauranteServicio(IRestauranteRepositorio restauranteRepositorio,
+                                                    IUsuarioClient usuarioClient,
+                                                    ITrazabilidadClient trazabilidadClient) {
+        return new RestauranteUseCase(restauranteRepositorio, usuarioClient, trazabilidadClient);
     }
-
     @Bean
     public IPlatoServicio platoServicio(IPlatoRepositorio iPlatoRepositorio,
                                         IRestaurantePlatoRepositorio iRestauranteRepositorioPlato,

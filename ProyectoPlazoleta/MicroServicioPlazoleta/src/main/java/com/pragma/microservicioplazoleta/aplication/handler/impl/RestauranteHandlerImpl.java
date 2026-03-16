@@ -3,6 +3,8 @@ package com.pragma.microservicioplazoleta.aplication.handler.impl;
 
 import com.pragma.microservicioplazoleta.aplication.dto.request.RestauranteRequest;
 import com.pragma.microservicioplazoleta.aplication.dto.response.RestauranteResponse;
+import com.pragma.microservicioplazoleta.aplication.dto.response.TiempoEmpleadoResponse;
+import com.pragma.microservicioplazoleta.aplication.dto.response.TiempoPedidoResponse;
 import com.pragma.microservicioplazoleta.aplication.handler.IRestauranteHandler;
 import com.pragma.microservicioplazoleta.aplication.mapper.RestaurantRequestMapper;
 import com.pragma.microservicioplazoleta.domain.api.IRestauranteServicio;
@@ -32,5 +34,15 @@ public class RestauranteHandlerImpl implements IRestauranteHandler {
                 .stream()
                 .map(restauranteRequestMapper::toResponse)
                 .toList();
+    }
+
+    @Override
+    public List<TiempoPedidoResponse> obtenerEficienciaPorPedido(Long idRestaurante, Long idPropietario) {
+        return restauranteServicio.obtenerEficienciaPorPedido(idRestaurante, idPropietario);
+    }
+
+    @Override
+    public List<TiempoEmpleadoResponse> obtenerRankingPorEmpleado(Long idRestaurante, Long idPropietario) {
+        return restauranteServicio.obtenerRankingPorEmpleado(idRestaurante, idPropietario);
     }
 }

@@ -12,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Component
@@ -35,5 +36,11 @@ public class RestauranteAdapter implements IRestauranteRepositorio {
         return entities.stream()
                 .map(restauranteEntityMapper::toModel)
                 .toList();
+    }
+
+    @Override
+    public Optional<Restaurante> obtenerRestaurantePorId(Long idRestaurante) {
+        return restauranteRepositorio.findById(idRestaurante)
+                .map(restauranteEntityMapper::toModel);
     }
 }

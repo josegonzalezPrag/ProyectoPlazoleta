@@ -1,6 +1,8 @@
 package com.pragma.microservicioplazoleta.infrastructure.out.feign;
 
 import com.pragma.microservicioplazoleta.aplication.dto.request.TrazabilidadRequest;
+import com.pragma.microservicioplazoleta.aplication.dto.response.TiempoEmpleadoResponse;
+import com.pragma.microservicioplazoleta.aplication.dto.response.TiempoPedidoResponse;
 import com.pragma.microservicioplazoleta.aplication.dto.response.TrazabilidadResponse;
 import com.pragma.microservicioplazoleta.domain.spi.ITrazabilidadClient;
 import lombok.RequiredArgsConstructor;
@@ -21,5 +23,15 @@ public class TrazabilidadClientAdapter implements ITrazabilidadClient {
     @Override
     public List<TrazabilidadResponse> obtenerTrazabilidadPedido(Long idPedido) {
         return trazabilidadFeignClient.obtenerTrazabilidadPedido(idPedido);
+    }
+
+    @Override
+    public List<TiempoPedidoResponse> obtenerEficienciaPorPedido(Long idRestaurante) {
+        return trazabilidadFeignClient.obtenerEficienciaPorPedido(idRestaurante);
+    }
+
+    @Override
+    public List<TiempoEmpleadoResponse> obtenerRankingPorEmpleado(Long idRestaurante) {
+        return trazabilidadFeignClient.obtenerRankingPorEmpleado(idRestaurante);
     }
 }

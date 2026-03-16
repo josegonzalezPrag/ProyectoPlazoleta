@@ -1,6 +1,8 @@
 package com.pragma.microserviciotrazabilidad.aplication.handler.impl;
 
 import com.pragma.microserviciotrazabilidad.aplication.dto.request.TrazabilidadRequest;
+import com.pragma.microserviciotrazabilidad.aplication.dto.response.TiempoEmpleadoResponse;
+import com.pragma.microserviciotrazabilidad.aplication.dto.response.TiempoPedidoResponse;
 import com.pragma.microserviciotrazabilidad.aplication.dto.response.TrazabilidadResponse;
 import com.pragma.microserviciotrazabilidad.aplication.handler.ITrazabilidadHandler;
 import com.pragma.microserviciotrazabilidad.aplication.mapper.TrazabilidadResquestMapper;
@@ -34,5 +36,15 @@ public class TrazabilidadHandlerImpl implements ITrazabilidadHandler {
     @Override
     public long calcularTiempoEntrega(Long idPedido) {
         return servicio.calcularTiempoEntrega(idPedido);
+    }
+
+    @Override
+    public List<TiempoPedidoResponse> obtenerEficienciaPorPedido(Long idRestaurante) {
+        return servicio.obtenerEficienciaPorPedido(idRestaurante);
+    }
+
+    @Override
+    public List<TiempoEmpleadoResponse> obtenerRankingPorEmpleado(Long idRestaurante) {
+        return servicio.obtenerRankingPorEmpleado(idRestaurante);
     }
 }

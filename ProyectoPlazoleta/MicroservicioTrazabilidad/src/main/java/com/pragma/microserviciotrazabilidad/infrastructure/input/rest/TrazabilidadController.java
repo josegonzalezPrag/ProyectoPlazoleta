@@ -1,6 +1,8 @@
 package com.pragma.microserviciotrazabilidad.infrastructure.input.rest;
 
 import com.pragma.microserviciotrazabilidad.aplication.dto.request.TrazabilidadRequest;
+import com.pragma.microserviciotrazabilidad.aplication.dto.response.TiempoEmpleadoResponse;
+import com.pragma.microserviciotrazabilidad.aplication.dto.response.TiempoPedidoResponse;
 import com.pragma.microserviciotrazabilidad.aplication.dto.response.TrazabilidadResponse;
 import com.pragma.microserviciotrazabilidad.aplication.handler.ITrazabilidadHandler;
 import io.swagger.v3.oas.annotations.Operation;
@@ -66,5 +68,33 @@ public class TrazabilidadController {
     public ResponseEntity<String> calcularTiempoEntrega(@PathVariable Long idPedido) {
         long minutos = handler.calcularTiempoEntrega(idPedido);
         return ResponseEntity.ok("Tiempo de entrega: " + minutos + " minutos");
+    }
+
+    @Operation(
+            summary = "Obtener eficiencia por pedido",
+            description = "Muestra el tiempo de entrega de cada pedido del restaurante. Solo puede ser ejecutado por un PROPIETARIO.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Eficiencia obtenida exitosamente"),
+                    @ApiResponse(responseCode = "403", description = "No tiene permisos para realizar esta acción")
+            }
+    )
+    @GetMapping("/restaurante/{idRestaurante}/eficiencia")
+    @PreAuthorize("hasRole('PROPIETARIO')")
+    public ResponseEntity<List<TiempoPedidoResponse>> obtenerEficienciaPorPedido(@PathVariable Long idRestaurante) {
+        return ResponseEntity.ok(handler.obtenerEficienciaPorPedido(idRestaurante));
+    }
+
+    @Operation(
+            summary = "Obtener ranking de empleados",
+            description = "Muestra el ranking de empleados por tiempo medio de entrega. Solo puede ser ejecutado por un PROPIETARIO.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Ranking obtenido exitosamente"),
+                    @ApiResponse(responseCode = "403", description = "No tiene permisos para realizar esta acción")
+            }
+    )
+    @GetMapping("/restaurante/{idRestaurante}/ranking-empleados")
+    @PreAuthorize("hasRole('PROPIETARIO')")
+    public ResponseEntity<List<TiempoEmpleadoResponse>> obtenerRankingPorEmpleado(@PathVariable Long idRestaurante) {
+        return ResponseEntity.ok(handler.obtenerRankingPorEmpleado(idRestaurante));
     }
 }
