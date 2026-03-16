@@ -3,6 +3,9 @@ package com.pragma.microservicioplazoleta.domain.usercase.constantes;
 public class PeidoConstantes {
     private PeidoConstantes(){}
 
+    public static final String ESTADO_CANCELADO = "Cancelado";
+    public static final String PEDIDO_NO_ESTA_PENDIENTE = "El pedido solo puede cancelarse cuando está en estado Pendiente";
+    public static final String CLIENTE_NO_ES_DUENO = "No tienes permiso para cancelar este pedido";
     public static final String ESTADO_ENTREGADO = "Entregado";
     public static final String CODIGO_INVALIDO = "El código de entrega es incorrecto";
     public static final String PEDIDO_NO_ESTA_LISTO = "El pedido debe estar en estado Listo para ser entregado";

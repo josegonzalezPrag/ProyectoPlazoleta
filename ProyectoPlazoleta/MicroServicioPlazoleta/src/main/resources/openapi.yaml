@@ -461,6 +461,65 @@
         }
       }
     },
+    "/pedido/{idPedido}/cancelar" : {
+      "patch" : {
+        "tags" : [ "Pedidos" ],
+        "summary" : "Cancelar pedido",
+        "description" : "Cancela un pedido en estado Pendiente. Solo puede ser ejecutado por el cliente dueño del pedido.",
+        "operationId" : "cancelarPedido",
+        "parameters" : [ {
+          "name" : "idPedido",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Pedido cancelado exitosamente",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PedidoResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "El pedido no está en estado Pendiente",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PedidoResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "No tienes permiso para cancelar este pedido",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PedidoResponse"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Pedido no encontrado",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PedidoResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/pedido/{idPedido}/asignar" : {
       "patch" : {
         "tags" : [ "Pedidos" ],

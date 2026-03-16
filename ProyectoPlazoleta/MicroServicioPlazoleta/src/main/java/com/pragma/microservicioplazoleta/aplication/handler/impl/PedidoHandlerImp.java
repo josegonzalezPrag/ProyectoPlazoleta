@@ -54,4 +54,9 @@ public class PedidoHandlerImp implements IPedidoHandler {
     public PedidoResponse entregarPedido(Long idPedido, String codigoEntrega, Long idEmpleado) {
         return pedidoRequestMapper.toResponse(pedidoServicio.entregarPedido(idPedido, codigoEntrega, idEmpleado));
     }
+
+    @Override
+    public PedidoResponse cancelarPedido(Long idPedido, Long idCliente) {
+        return pedidoRequestMapper.toResponse(pedidoServicio.cancelarPedido(idPedido, idCliente));
+    }
 }

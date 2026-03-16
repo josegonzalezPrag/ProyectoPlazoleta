@@ -125,4 +125,18 @@ public class PedidoUseCase implements IPedidoServicio {
         return pedidoRepositorio.actualizarPedido(pedido);
     }
 
+    @Override
+    public Pedido cancelarPedido(Long idPedido, Long idCliente) {
+        Pedido pedido = obtenerPedidoOLanzarExcepcion(idPedido);
+
+        if (!pedido.getIdCliente().equals(idCliente))
+            throw new SinPermisosException(PeidoConstantes.CLIENTE_NO_ES_DUENO);
+
+        if (!PeidoConstantes.ESTADO_PENDIENTE.equals(pedido.getEstado()))
+            throw new DatoInvalidoException(PeidoConstantes.PEDIDO_NO_ESTA_PENDIENTE);
+
+        pedido.setEstado(PeidoConstantes.ESTADO_CANCELADO);
+        return pedidoRepositorio.actualizarPedido(pedido);
+    }
+
 }

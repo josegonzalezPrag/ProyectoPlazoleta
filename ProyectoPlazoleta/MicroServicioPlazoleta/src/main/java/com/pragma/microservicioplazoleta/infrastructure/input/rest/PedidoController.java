@@ -151,4 +151,25 @@ public class PedidoController {
         Long idEmpleado = (Long) auth.getCredentials();
         return ResponseEntity.ok(pedidoHandler.entregarPedido(idPedido, request.getCodigoEntrega(), idEmpleado));
     }
+
+    @Operation(
+            summary = "Cancelar pedido",
+            description = "Cancela un pedido en estado Pendiente. Solo puede ser ejecutado por el cliente dueño del pedido.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Pedido cancelado exitosamente"),
+                    @ApiResponse(responseCode = "400", description = "El pedido no está en estado Pendiente"),
+                    @ApiResponse(responseCode = "403", description = "No tienes permiso para cancelar este pedido"),
+                    @ApiResponse(responseCode = "404", description = "Pedido no encontrado")
+            }
+    )
+    @PatchMapping("/{idPedido}/cancelar")
+    @PreAuthorize("hasRole('CLIENTE')")
+    public ResponseEntity<PedidoResponse> cancelarPedido(@PathVariable Long idPedido) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getCredentials() == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        Long idCliente = (Long) auth.getCredentials();
+        return ResponseEntity.ok(pedidoHandler.cancelarPedido(idPedido, idCliente));
+    }
 }

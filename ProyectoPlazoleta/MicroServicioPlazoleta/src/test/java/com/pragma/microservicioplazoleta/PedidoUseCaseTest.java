@@ -197,4 +197,57 @@ class PedidoUseCaseTest {
         verify(pedidoRepositorio, never()).actualizarPedido(any());
     }
 
+    @Test
+    void deberiaCancelarPedidoExitosamente() {
+        Pedido pedidoPendiente = Pedido.builder()
+                .id(1L)
+                .idCliente(1L)
+                .idRestaurante(1L)
+                .estado(PeidoConstantes.ESTADO_PENDIENTE)
+                .build();
+
+        when(pedidoRepositorio.obtenerPedidoPorId(1L)).thenReturn(Optional.of(pedidoPendiente));
+        when(pedidoRepositorio.actualizarPedido(any())).thenReturn(pedidoPendiente);
+
+        Pedido resultado = pedidoUseCase.cancelarPedido(1L, 1L);
+
+        assertNotNull(resultado);
+        assertEquals(PeidoConstantes.ESTADO_CANCELADO, pedidoPendiente.getEstado());
+        verify(pedidoRepositorio, times(1)).actualizarPedido(any());
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoClienteNoEsDuenoDeLPedido() {
+        Pedido pedidoPendiente = Pedido.builder()
+                .id(1L)
+                .idCliente(1L)
+                .idRestaurante(1L)
+                .estado(PeidoConstantes.ESTADO_PENDIENTE)
+                .build();
+
+        when(pedidoRepositorio.obtenerPedidoPorId(1L)).thenReturn(Optional.of(pedidoPendiente));
+
+        assertThrows(SinPermisosException.class,
+                () -> pedidoUseCase.cancelarPedido(1L, 99L));
+
+        verify(pedidoRepositorio, never()).actualizarPedido(any());
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoPedidoNoEstaPendienteAlCancelar() {
+        Pedido pedidoEnPreparacionParaCancelar = Pedido.builder()
+                .id(1L)
+                .idCliente(1L)
+                .idRestaurante(1L)
+                .estado(PeidoConstantes.ESTADO_EN_PREPARACION)
+                .build();
+
+        when(pedidoRepositorio.obtenerPedidoPorId(1L)).thenReturn(Optional.of(pedidoEnPreparacionParaCancelar));
+
+        assertThrows(DatoInvalidoException.class,
+                () -> pedidoUseCase.cancelarPedido(1L, 1L));
+
+        verify(pedidoRepositorio, never()).actualizarPedido(any());
+    }
+
 }
